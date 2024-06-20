@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-5og0jurl6lcw-*yhtfo%u9d3)4smu)2=hw9g+l4w!9g#^vk0$o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", ".vercel.app", ".now.sh"]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -48,7 +48,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'modelrev2.urls'
@@ -84,12 +83,8 @@ WSGI_APPLICATION = 'modelrev2.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
-        'USER': 'postgres',
-        'PASSWORD': 'gfcoNJWPeptyDnGBSMKsfKChXITApyxg',
-        'HOST': 'roundhouse.proxy.rlwy.net',
-        'PORT': '29949',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -129,11 +124,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 STATIC_URL = "static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
