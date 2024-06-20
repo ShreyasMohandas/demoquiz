@@ -1,8 +1,3 @@
-#!/bin/bash
-
-# Exit on errors
-set -e
-
 # Install dependencies
 pip install -r requirements.txt
 
