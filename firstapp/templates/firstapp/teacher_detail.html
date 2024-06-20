@@ -1,0 +1,51 @@
+{% extends "firstapp/base.html" %}
+
+{% block body_block %}
+
+    {% csrf_token %}
+    <div class="school-details">
+        <h1>Teacher Details</h1>
+        <div class="school-info">
+            <h3>Name: {{ teacher.name }}</h3>
+        </div>
+        <h3>Students:</h3>
+        <table class="students-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in teacher.students.all %}
+                    <tr>
+                        <td class="no-underline"><a href="{% url 'firstapp:detail-student' pk=student.id %}" class="test-link">{{ student.name }}</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h3>Test Created:</h3>
+        <table class="students-table">
+            <thead>
+                <tr>
+                    <th>Test</th>
+                    <th>Test id</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for test in teacher.tests.all %}
+                    <tr>
+                        <td>{{ test.test_name }}</td>
+                        <td>{{ test.id}}</td>
+                        <td class="no-underline"><a href="{% url 'firstapp:download-file' test.file_path %}" class="test-link">{{test.file_path}}</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if perms.firstapp.add_students %}
+            <h3><a href="{% url 'firstapp:add-student' %}" class="update-profile-link">Add Student</a></h3>
+            <h3><a href="{% url 'firstapp:upload-file' %}" class="update-profile-link">Upload File</a></h3>
+        {% endif %}
+
+    </div>
+{% endblock %}

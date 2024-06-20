@@ -1,0 +1,21 @@
+{% extends 'firstapp/base.html' %}
+        {% load firstapp_extras %}
+        {% block body_block %}
+
+        <h3>You have scored : {{marks_obtained}} of {{total_marks}}</h3>
+        
+        {% for question in questions %}
+            <h3>{{ question.id }} . {{ question.question }}</h3>
+            {% if question.answer_given|compareTwo:'incorrect' %}
+                <p>Wrong answer given - {{ question.answer_given_value }}</p>
+                <p>Correct answer - {{ question.correct_answer }}</p>
+                <p>Solution - {{ question.solution }}</p>
+                <p>Marks awarded - 0</p>
+            {% else %}
+                <p>Correct answer - {{ question.correct_answer }}</p>
+                <p>Solution - {{ question.solution }}</p>
+                <p>Marks awarded - {{ question.marks }}</p>
+            {% endif %}
+        {% endfor %}
+        
+{% endblock %}

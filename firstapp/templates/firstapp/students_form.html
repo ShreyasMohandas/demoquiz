@@ -1,0 +1,15 @@
+{%extends 'firstapp/base.html'%}
+
+{%block body_block%}
+{%if not form.instance.pk %}
+<h1>Add Student</h1>
+{%else%}
+<h1>Update Student</h1>
+{%endif%}
+<form action="" method="post">
+    {%csrf_token%}
+    {{form.as_p}}
+    <input type="submit" value="Submit">
+</form>
+
+{%endblock%}

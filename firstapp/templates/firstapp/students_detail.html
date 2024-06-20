@@ -1,0 +1,48 @@
+{% extends "firstapp/base.html" %}
+
+{% block title %}Student Details{% endblock %}
+
+{% block body_block %}
+    <div class="school-details">
+        <h1>Student Details</h1>
+        <div class="school-info">
+            <h3>Name: {{ students.name.first_name }} {{ students.name.last_name }}</h3>
+            <h3>Username: {{ students.name.username }}</h3>
+            <h3>About: {{ students.description }}</h3>
+        </div>
+        
+        <div class="tags-container">
+            <h2>Weaknesses:</h2>
+            <div class="tags">
+                {% for tag in students.topics.all %}
+                    <a href="{% url 'firstapp:improvement-test' topic_id=tag.id %}" class="tag-button">{{ tag }}</a>
+                {% endfor %}
+            </div>
+        </div>
+        <table class="students-table">
+            <thead>
+                <tr>
+                    <th>Test Name</th>
+                    <th>Test Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for test in students.teacher.tests.all %}
+                    <tr>
+                        <td>{{ test.test_name }}</td>
+                        {% if test.id in attempted_tests %}
+                            <td class="no-underline"><a href="{% url 'firstapp:preview-test' id=test.id %}" class="test-link">Preview {{ test.id }}</a></td>
+                            <td class="no-underline"><a href="{% url 'firstapp:download-file' test.file_path %}" class="test-link">{{test.file_path}}</a></td>
+                        {% else %}
+                            <td class="no-underline"><a href="{% url 'firstapp:attend-test' test_id=test.id %}" class="test-link">Take {{ test.id }}</a></td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        {% if perms.firstapp.change_students %}
+            <h3><a href="{% url 'firstapp:update-student' pk=students.pk %}" class="update-profile-link">Update Profile</a></h3>
+        {% endif %}
+    </div>
+{% endblock %}

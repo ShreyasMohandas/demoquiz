@@ -1,0 +1,14 @@
+{%extends 'firstapp/base.html' %}
+{%block body_block %}
+<form action="" method="post">
+    {% csrf_token %}
+    {{RegisterForm.as_p}}
+    {{TeacherChoice.as_p}}
+    <p><button type="submit">Submit</button></p>
+    <p>
+        <label for="login">Already have an account?</label>
+        <button id="login" type="button" onclick="location.href='{% url 'firstapp:login'%}'">Login</button>
+    </p>
+
+</form>
+{%endblock%}

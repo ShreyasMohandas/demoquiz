@@ -1,0 +1,63 @@
+{% extends "firstapp/base.html" %}
+
+{% block body_block %}
+    <div class="main">
+        <form action="" method="post" id="quiz-form">
+            {% csrf_token %}
+            {% for question in questions %}
+                <div class="question-container" id="question-{{ question.id }}">
+                    <h3>{{ question.id }}. {{ question.question }}</h3>
+                    <p>Marks - {{ question.marks }}</p>
+                    <div class="options-grid">
+                        {% for option in question.options %}
+                            <div class="option-container">
+                                <input type="radio" name="question--{{ question.id }}" id="option--{{ question.id }}--{{ forloop.counter }}" value="{{ option }}">
+                                <label for="option--{{ question.id }}--{{ forloop.counter }}" class="btn-label">{{ option }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="navigation-buttons">
+                <button type="button" id="prev-button">Previous</button>
+                <button type="button" id="next-button">Next</button>
+                <button type="submit" id="submit-button" style="display:none;">Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const questions = document.querySelectorAll('.question-container');
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+            const submitButton = document.getElementById('submit-button');
+            let currentQuestionIndex = 0;
+
+            function showQuestion(index) {
+                questions.forEach((question, i) => {
+                    question.style.display = i === index ? 'block' : 'none';
+                });
+                prevButton.style.display = index === 0 ? 'none' : 'inline-block';
+                nextButton.style.display = index === questions.length - 1 ? 'none' : 'inline-block';
+                submitButton.style.display = index === questions.length - 1 ? 'inline-block' : 'none';
+            }
+
+            prevButton.addEventListener('click', function() {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    showQuestion(currentQuestionIndex);
+                }
+            });
+
+            nextButton.addEventListener('click', function() {
+                if (currentQuestionIndex < questions.length - 1) {
+                    currentQuestionIndex++;
+                    showQuestion(currentQuestionIndex);
+                }
+            });
+
+            showQuestion(currentQuestionIndex);
+        });
+    </script>
+{% endblock %}
