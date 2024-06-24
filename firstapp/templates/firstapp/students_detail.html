@@ -24,17 +24,22 @@
                 <tr>
                     <th>Test Name</th>
                     <th>Test Status</th>
+                    <th>Test Notes</th>
                 </tr>
             </thead>
             <tbody>
                 {% for test in students.teacher.tests.all %}
                     <tr>
-                        <td>{{ test.test_name }}</td>
+                        <td>{{ test.display_name }}</td>
                         {% if test.id in attempted_tests %}
-                            <td class="no-underline"><a href="{% url 'firstapp:preview-test' id=test.id %}" class="test-link">Preview {{ test.id }}</a></td>
+                            <td class="no-underline"><a href="{% url 'firstapp:preview-test' id=test.id  stud_id=students.id %}" class="test-link">Preview {{ test.id }}</a></td>
                             <td class="no-underline"><a href="{% url 'firstapp:download-file' test.file_path %}" class="test-link">{{test.file_path}}</a></td>
                         {% else %}
+                        {% if perms.firstapp.change_students %}
                             <td class="no-underline"><a href="{% url 'firstapp:attend-test' test_id=test.id %}" class="test-link">Take {{ test.id }}</a></td>
+                        {% else %}
+                            <td class="no-underline"> Test yet to take </td>
+                        {% endif %}
                         {% endif %}
                     </tr>
                 {% endfor %}

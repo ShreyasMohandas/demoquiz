@@ -18,6 +18,6 @@ urlpatterns = [
     path('quiz/<str:question>/', views.quiz, name='quiz'),
     path('attend-test/<int:test_id>',views.attend_quiz,name='attend-test'),
     path('improvement-test/<int:topic_id>',views.rectification_quiz,name='improvement-test'),
-    path('preview-test/<int:id>',views.preview_test,name='preview-test'),
+    path('preview-test/<int:id>/student/<int:stud_id>/',views.preview_test,name='preview-test'),
     path('download-file/<path:file_path>',views.download_file,name='download-file'),
 ]

@@ -2,7 +2,12 @@
         {% load firstapp_extras %}
         {% block body_block %}
 
+        {% if test_mode|compareTwo:'one' %}
+        <h3>Attempt Time : {{start_time}} - {{end_time}}</h3>
+        {%endif%}
+
         <h3>You have scored : {{marks_obtained}} of {{total_marks}}</h3>
+
         
         {% for question in questions %}
             <h3>{{ question.id }} . {{ question.question }}</h3>

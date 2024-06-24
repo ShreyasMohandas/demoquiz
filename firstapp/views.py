@@ -9,7 +9,9 @@ from firstapp import rag
 from django.http import FileResponse
 from django.views.generic import CreateView,UpdateView,DeleteView,DetailView,ListView
 import os
+from django.utils.dateparse import parse_datetime
 from django.conf import settings
+from django.utils import timezone
 
 # Create your views here.
 def user_register(request):
@@ -116,6 +118,9 @@ def upload_file(request):
 def ask_question(request):
     if request.method=='POST':
         question=request.POST.get('question')
+        request.session['title_quiz']=request.POST.get('title_quiz')
+        request.session['datetime_start']=request.POST.get('datetime_start')
+        request.session['datetime_end']=request.POST.get('datetime_end')
         return redirect('firstapp:quiz', question=question)
     return render(request,"firstapp/ask_question.html")
 
@@ -132,21 +137,37 @@ def quiz(request,question):
         Test.objects.create(
             teacher=teacher,
             test_name=request.session.get('test_name'),
+            display_name=request.session.get('title_quiz'),
+            start_time=request.session.get('datetime_start'),
+            end_time=request.session.get('datetime_end'),
+            test_total_marks=rag.calculate_total_marks(request.session.get('gen_ques')),
             test_data=request.session.get('gen_ques'),
             file_path=request.session.get('uploaded_file_path')
         )
         del request.session['uploaded_file_path']
+        del request.session['test_name']
+        del request.session['title_quiz']
+        del request.session['datetime_start']
+        del request.session['datetime_end']
+        del request.session['gen_ques']
         return redirect('firstapp:teacher_detail',pk=teacher.pk)
     
 
 def attend_quiz(request,test_id):
+    student,_=Students.objects.get_or_create(name=request.user)
     if request.method=='GET':
         test=Test.objects.get(id=test_id)
+        TestAttempt.objects.create(
+            student=student,
+            test=test,
+            attempt_start=timezone.now()
+        )
         return render(request,"firstapp/quiz.html",context=test.test_data)
     elif request.method == 'POST':
-        student,_=Students.objects.get_or_create(name=request.user)
         submitted_data=request.POST
         test=Test.objects.get(id=test_id)
+        test_attempt=TestAttempt.objects.get(student_id=student.id,test_id=test.id)
+        test_attempt.attempt_end=timezone.now()
         question_list=test.test_data
         obtained_marks=0
         topicstags=[]
@@ -165,14 +186,10 @@ def attend_quiz(request,test_id):
                             topic=i,
                             test=test
                         )
-        test_marks=rag.calculate_total_marks(question_list)
-        TestAttempt.objects.create(
-            student=student,
-            test=test,
-            Submitted_data=question_list['questions'],
-            test_marks=obtained_marks,
-            test_total_marks=test_marks
-        )
+        test_marks=test.test_total_marks
+        test_attempt.Submitted_data=question_list['questions']
+        test_attempt.test_marks=obtained_marks
+        test_attempt.save()
 
         return render(
             request,'firstapp/result_page.html',
@@ -186,10 +203,25 @@ def attend_quiz(request,test_id):
             )
     
 
-def preview_test(request,id):
-    student,_=Students.objects.get_or_create(name=request.user)
+def preview_test(request,id,stud_id):
+    student,_=Students.objects.get_or_create(id=stud_id)
+    test_master=Test.objects.get(id=id)
     test=TestAttempt.objects.get(student_id=student.id,test_id=id)
-    return render(request,'firstapp/result_page.html',{'marks_obtained':test.test_marks,'total_marks': test.test_total_marks,'questions':test.Submitted_data,'preview':None,'student_pk':student.name.pk})
+    print(test.Submitted_data)
+    return render(
+        request,
+        'firstapp/result_page.html',
+        {
+            'marks_obtained':test.test_marks,
+            'total_marks': test_master.test_total_marks,
+            'questions':test.Submitted_data,
+            'preview':None,
+            'student_pk':student.name.pk,
+            'start_time':test.attempt_start,
+            'end_time':test.attempt_end,
+            'test_mode':'one'
+        }
+    )
 
 
 def download_file(request,file_path):
@@ -230,7 +262,8 @@ def rectification_quiz(request,topic_id):
                         'total_marks': test_marks,
                         'questions':question_list['questions'],
                         'preview':None,
-                        'student_pk':student.name.pk
+                        'student_pk':student.name.pk,
+                        'test_mode':'two'
                     }
             )
 

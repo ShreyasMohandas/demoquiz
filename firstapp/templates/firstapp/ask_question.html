@@ -2,8 +2,15 @@
 {% block body_block %}
         <form action="" method="post">
             {% csrf_token %}
+            <label for="title_quiz">Enter Quiz title</label>
+            <input type="text" name="title_quiz" id="title_quiz">
             <label for="question">Enter Question</label>
             <input type="text" name="question" id="question">
+            <label for="datetime_start">Enter Start Date-Time</label>
+            <input type="datetime-local" name="datetime_start" id="datetime_start">
+            <label for="datetime_end">Enter End Date-Time</label>
+            <input type="datetime-local" name="datetime_end" id="datetime_end">
             <input type="submit" value="Submit">
         </form>
-{% endblock %}
+
+        {%endblock%}

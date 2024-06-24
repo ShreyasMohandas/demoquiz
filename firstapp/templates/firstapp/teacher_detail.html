@@ -27,16 +27,20 @@
         <table class="students-table">
             <thead>
                 <tr>
+                    <th>id</th>
                     <th>Test</th>
-                    <th>Test id</th>
+                    <th>Start time</th>
+                    <th>End time</th>
                     <th>Notes</th>
                 </tr>
             </thead>
             <tbody>
                 {% for test in teacher.tests.all %}
                     <tr>
-                        <td>{{ test.test_name }}</td>
                         <td>{{ test.id}}</td>
+                        <td>{{ test.display_name }}</td>
+                        <td>{{ test.start_time }}</td>
+                        <td>{{ test.end_time }}</td>
                         <td class="no-underline"><a href="{% url 'firstapp:download-file' test.file_path %}" class="test-link">{{test.file_path}}</a></td>
                     </tr>
                 {% endfor %}
