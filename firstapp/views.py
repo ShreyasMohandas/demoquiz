@@ -76,6 +76,11 @@ class teacherdata(LoginRequiredMixin,PermissionRequiredMixin,ListView):
 class teacherdetail(LoginRequiredMixin,PermissionRequiredMixin,DetailView):
     permission_required='firstapp.add_students'
     model=Teacher
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context= super().get_context_data(**kwargs)
+        context['now']=timezone.now().isoformat()
+        print(type(timezone.now()))
+        return context
 
 class studentdetail(LoginRequiredMixin,DetailView):
     model=Students

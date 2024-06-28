@@ -1,8 +1,6 @@
 {% extends "firstapp/base.html" %}
-
+{% load firstapp_extras %}
 {% block body_block %}
-
-    {% csrf_token %}
     <div class="school-details">
         <h1>Teacher Details</h1>
         <div class="school-info">
@@ -27,21 +25,23 @@
         <table class="students-table">
             <thead>
                 <tr>
-                    <th>id</th>
+                    <th>ID</th>
                     <th>Test</th>
-                    <th>Start time</th>
-                    <th>End time</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
                     <th>Notes</th>
+                    <th>Comparison Result</th>
                 </tr>
             </thead>
             <tbody>
                 {% for test in teacher.tests.all %}
                     <tr>
-                        <td>{{ test.id}}</td>
+                        <td>{{ test.id }}</td>
                         <td>{{ test.display_name }}</td>
                         <td>{{ test.start_time }}</td>
                         <td>{{ test.end_time }}</td>
-                        <td class="no-underline"><a href="{% url 'firstapp:download-file' test.file_path %}" class="test-link">{{test.file_path}}</a></td>
+                        <td class="no-underline"><a href="{% url 'firstapp:download-file' test.file_path %}" class="test-link">{{ test.file_path }}</a></td>
+                        <td id='comparison-result-{{ test.id }}'></td> <!-- Placeholder for comparison result -->
                     </tr>
                 {% endfor %}
             </tbody>
@@ -50,6 +50,45 @@
             <h3><a href="{% url 'firstapp:add-student' %}" class="update-profile-link">Add Student</a></h3>
             <h3><a href="{% url 'firstapp:upload-file' %}" class="update-profile-link">Upload File</a></h3>
         {% endif %}
-
     </div>
+
+    <script>
+        // Function to update the comparison result for each test
+        function updateComparison() {
+            const now = new Date(); // Current client time
+            const currentTime = now.toISOString();
+            let nowJs= new Date(currentTime);
+
+    
+            {% for test in teacher.tests.all %}
+                (function() {
+                    const testStartTimeStr = "{{ test.start_time|toUTC }}"; 
+                    const testStartTime = new Date(testStartTimeStr); 
+                    const testEndTimeStr = "{{ test.end_time|toUTC }}"; 
+                    const testEndTime = new Date(testEndTimeStr); 
+                    const timeDifferenceStart = nowJs - testStartTime;
+                    const timeDifferenceEnd = nowJs - testEndTime;
+                    
+                    let comparisonResult;
+
+                    if(timeDifferenceStart<0){
+                        comparisonResult = "starts in " + Math.floor(-timeDifferenceStart / 1000) + " seconds."
+                    } else if(timeDifferenceStart>0 && timeDifferenceEnd<0){
+                        comparisonResult = "Ongoing "
+                    } else if(timeDifferenceEnd>0){
+                        comparisonResult = "Completed "
+                    }
+
+                    document.getElementById('comparison-result-{{ test.id }}').textContent = comparisonResult;
+                })();
+            {% endfor %}
+        }
+    
+        // Update the comparison immediately
+        updateComparison();
+    
+        // Update the comparison every second
+        setInterval(updateComparison, 1000);
+    </script>
+    
 {% endblock %}
