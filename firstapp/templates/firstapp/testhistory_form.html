@@ -1,15 +1,107 @@
-{%extends 'firstapp/base.html'%}
+{% extends 'firstapp/base.html' %}
 
-{%block body_block%}
-{%if not form.instance.pk %}
-<h1>Add Test</h1>
-{%else%}
-<h1>Update Test</h1>
-{%endif%}
-<form action="" method="post">
-    {%csrf_token%}
-    {{form.as_p}}
-    <input type="submit" value="Submit">
-</form>
+{% block body_block %}
+<div class="quiz-result-container">
+    <div class="quiz-header">
+        <h1 class="quiz-title">
+            {% if not form.instance.pk %}
+                Add Test
+            {% else %}
+                Update Test
+            {% endif %}
+        </h1>
+    </div>
 
-{%endblock%}
+    <div class="quiz-form">
+        <form action="" method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .quiz-result-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: var(--glass-bg);
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .quiz-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .quiz-title {
+        color: var(--accent-color);
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .quiz-form form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    .submit-btn {
+        background-color: var(--accent-color);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.3s ease;
+        align-self: flex-start;
+    }
+
+    .submit-btn:hover {
+        background-color: #0056b3;
+    }
+
+    @media (max-width: 768px) {
+        .quiz-result-container {
+            padding: 1rem;
+            margin: 1rem;
+        }
+    }
+</style>
+{% endblock %}
