@@ -3,28 +3,31 @@
 {% block title %}Student Details{% endblock %}
 
 {% block body_block %}
-    <div class="school-details">
-        <h1>Student Details</h1>
-        <div class="school-info">
-            <h3>Name: {{ students.name.first_name }} {{ students.name.last_name }}</h3>
-            <h3>Username: {{ students.name.username }}</h3>
-            <h3>About: {{ students.description }}</h3>
+<div class="student-details">
+    <h1>Student Details</h1>
+    <div class="info-card">
+        <h2>{{ students.name.first_name }} {{ students.name.last_name }}</h2>
+        <p><strong>Username:</strong> {{ students.name.username }}</p>
+        <p><strong>About:</strong> {{ students.description }}</p>
+    </div>
+    
+    <div class="weaknesses-section">
+        <h2>Weaknesses</h2>
+        <div class="tags">
+            {% for tag in students.topics.all %}
+                <a href="{% url 'firstapp:improvement-test' topic_id=tag.id %}" class="tag-button">{{ tag }}</a>
+            {% endfor %}
         </div>
-        
-        <div class="tags-container">
-            <h2>Weaknesses:</h2>
-            <div class="tags">
-                {% for tag in students.topics.all %}
-                    <a href="{% url 'firstapp:improvement-test' topic_id=tag.id %}" class="tag-button">{{ tag }}</a>
-                {% endfor %}
-            </div>
-        </div>
-        <table class="students-table">
+    </div>
+
+    <h2>Tests</h2>
+    <div class="table-responsive">
+        <table class="bordered-table" >
             <thead>
                 <tr>
                     <th>Test Name</th>
-                    <th>Test Status</th>
-                    <th>Test Notes</th>
+                    <th>Status</th>
+                    <th>Notes</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,22 +35,137 @@
                     <tr>
                         <td>{{ test.display_name }}</td>
                         {% if test.id in attempted_tests %}
-                            <td class="no-underline"><a href="{% url 'firstapp:preview-test' id=test.id  stud_id=students.id %}" class="test-link">Preview {{ test.id }}</a></td>
-                            <td class="no-underline"><a href="{% url 'firstapp:download-file' test.file_path %}" class="test-link">{{test.file_path}}</a></td>
+                            <td><a href="{% url 'firstapp:preview-test' id=test.id  stud_id=students.id %}" class="btn">Preview</a></td>
+                            <td><a href="{% url 'firstapp:download-file' test.file_path %}" class="btn">Download</a></td>
                         {% else %}
-                        {% if perms.firstapp.change_students %}
-                            <td class="no-underline"><a href="{% url 'firstapp:attend-test' test_id=test.id %}" class="test-link">Take {{ test.id }}</a></td>
-                        {% else %}
-                            <td class="no-underline"> Test yet to take </td>
-                        {% endif %}
+                            {% if perms.firstapp.change_students %}
+                                <td><a href="{% url 'firstapp:attend-test' test_id=test.id %}" class="btn">Take Test</a></td>
+                            {% else %}
+                                <td><span class="status-btn">Not Taken</span></td>
+                            {% endif %}
+                            <td>-</td>
                         {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-        
-        {% if perms.firstapp.change_students %}
-            <h3><a href="{% url 'firstapp:update-student' pk=students.pk %}" class="update-profile-link">Update Profile</a></h3>
-        {% endif %}
     </div>
+    
+    {% if perms.firstapp.change_students %}
+        <div class="action-buttons">
+            <a href="{% url 'firstapp:update-student' pk=students.pk %}" class="btn">Update Profile</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .student-details {
+        background: var(--glass-bg);
+        /* backdrop-filter: blur(10px); */
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius);
+        padding: 30px;
+        margin-top: 20px;
+    }
+
+    .info-card {
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .info-card h2 {
+        color: var(--primary-color);
+        margin-bottom: 15px;
+    }
+
+    .info-card p {
+        margin-bottom: 10px;
+    }
+
+    .weaknesses-section {
+        margin-bottom: 30px;
+    }
+
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .tag-button {
+        background-color: var(--secondary-color);
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: var(--radius);
+        text-decoration: none;
+        font-size: 0.9em;
+        transition: background-color var(--transition-speed);
+    }
+
+    .tag-button:hover {
+        background-color: var(--accent-color);
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .bordered-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .bordered-table th,
+    .bordered-table td {
+        border: 1px solid var(--glass-border);
+        padding: 8px;
+    }
+
+    .bordered-table th {
+        background-color: var(--glass-bg);
+    }
+
+    .status-btn {
+        background-color: var(--accent-color);
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: var(--radius);
+        font-size: 0.9em;
+    }
+
+    .action-buttons {
+        margin-top: 30px;
+    }
+    .bordered-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .bordered-table th,
+    .bordered-table td {
+        border: 1px solid var(--glass-border);
+        padding: 8px;
+    }
+
+    .bordered-table th {
+        background-color: var(--glass-bg);
+    }
+
+    @media (max-width: 768px) {
+        .student-details {
+            padding: 20px;
+        }
+
+        .tags {
+            flex-direction: column;
+        }
+
+        .tag-button {
+            text-align: center;
+        }
+    }
+</style>
 {% endblock %}

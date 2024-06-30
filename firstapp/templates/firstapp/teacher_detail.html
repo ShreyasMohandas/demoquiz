@@ -1,13 +1,15 @@
 {% extends "firstapp/base.html" %}
-{% load firstapp_extras %}
+
 {% block body_block %}
-    <div class="school-details">
-        <h1>Teacher Details</h1>
-        <div class="school-info">
-            <h3>Name: {{ teacher.name }}</h3>
-        </div>
-        <h3>Students:</h3>
-        <table class="students-table">
+<div class="school-details">
+    <h1>Teacher Details</h1>
+    <div class="school-info">
+        <h2>{{ teacher.name }}</h2>
+    </div>
+
+    <h3>Students</h3>
+    <div class="table-responsive">
+        <table class="bordered-table">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -16,79 +18,133 @@
             <tbody>
                 {% for student in teacher.students.all %}
                     <tr>
-                        <td class="no-underline"><a href="{% url 'firstapp:detail-student' pk=student.id %}" class="test-link">{{ student.name }}</a></td>
+                        <td><a href="{% url 'firstapp:detail-student' pk=student.id %}" class="btn">{{ student.name }}</a></td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-        <h3>Test Created:</h3>
-        <table class="students-table">
+    </div>
+
+    <h3>Tests Created</h3>
+    <div class="table-responsive">
+        <table class="bordered-table">
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Test</th>
-                    <th>Start Time</th>
-                    <th>End Time</th>
+                    <th>Test ID</th>
                     <th>Notes</th>
-                    <th>Comparison Result</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
                 {% for test in teacher.tests.all %}
                     <tr>
-                        <td>{{ test.id }}</td>
                         <td>{{ test.display_name }}</td>
-                        <td>{{ test.start_time }}</td>
-                        <td>{{ test.end_time }}</td>
-                        <td class="no-underline"><a href="{% url 'firstapp:download-file' test.file_path %}" class="test-link">{{ test.file_path }}</a></td>
-                        <td id='comparison-result-{{ test.id }}'></td> <!-- Placeholder for comparison result -->
+                        <td>{{ test.id }}</td>
+                        <td><a href="{% url 'firstapp:download-file' test.file_path %}" class="btn">Download</a></td>
+                        <td><span class="status-btn" id="test-status-{{ test.id }}">Active</span></td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-        {% if perms.firstapp.add_students %}
-            <h3><a href="{% url 'firstapp:add-student' %}" class="update-profile-link">Add Student</a></h3>
-            <h3><a href="{% url 'firstapp:upload-file' %}" class="update-profile-link">Upload File</a></h3>
-        {% endif %}
     </div>
 
-    <script>
-        // Function to update the comparison result for each test
-        function updateComparison() {
-            const now = new Date(); // Current client time
-            const currentTime = now.toISOString();
-            let nowJs= new Date(currentTime);
+    {% if perms.firstapp.add_students %}
+        <div class="action-buttons">
+            <a href="{% url 'firstapp:add-student' %}" class="btn">Add Student</a>
+            <a href="{% url 'firstapp:upload-file' %}" class="btn">Upload File</a>
+        </div>
+    {% endif %}
+</div>
 
-    
-            {% for test in teacher.tests.all %}
-                (function() {
-                    const testStartTimeStr = "{{ test.start_time|toUTC }}"; 
-                    const testStartTime = new Date(testStartTimeStr); 
-                    const testEndTimeStr = "{{ test.end_time|toUTC }}"; 
-                    const testEndTime = new Date(testEndTimeStr); 
-                    const timeDifferenceStart = nowJs - testStartTime;
-                    const timeDifferenceEnd = nowJs - testEndTime;
-                    
-                    let comparisonResult;
+<style>
+    .school-details {
+        background: var(--glass-bg);
+        /* backdrop-filter: blur(10px); */
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius);
+        padding: 30px;
+        margin-top: 20px;
+    }
 
-                    if(timeDifferenceStart<0){
-                        comparisonResult = "starts in " + Math.floor(-timeDifferenceStart / 1000) + " seconds."
-                    } else if(timeDifferenceStart>0 && timeDifferenceEnd<0){
-                        comparisonResult = "Ongoing "
-                    } else if(timeDifferenceEnd>0){
-                        comparisonResult = "Completed "
-                    }
+    .school-info {
+        margin-bottom: 30px;
+    }
 
-                    document.getElementById('comparison-result-{{ test.id }}').textContent = comparisonResult;
-                })();
-            {% endfor %}
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .bordered-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .bordered-table th,
+    .bordered-table td {
+        border: 1px solid var(--glass-border);
+        padding: 8px;
+    }
+
+    .bordered-table th {
+        background-color: var(--glass-bg);
+    }
+
+    .status-btn {
+        background-color: var(--accent-color);
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: var(--radius);
+        font-size: 0.9em;
+        display: inline-block;
+    }
+
+    .action-buttons {
+        margin-top: 30px;
+        display: flex;
+        gap: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column;
         }
-    
-        // Update the comparison immediately
-        updateComparison();
-    
-        // Update the comparison every second
-        setInterval(updateComparison, 1000);
-    </script>
-    
+
+        .btn {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<script>
+    function updateTestStatus() {
+        const now = new Date();
+        
+        {% for test in teacher.tests.all %}
+            (function() {
+                const testId = {{ test.id }};
+                const startTime = new Date("{{ test.start_time|date:'c' }}");
+                const endTime = new Date("{{ test.end_time|date:'c' }}");
+                const statusElement = document.getElementById(`test-status-${testId}`);
+                
+                if (now < startTime) {
+                    const timeUntilStart = Math.floor((startTime - now) / 1000);
+                    statusElement.textContent = `Starts in ${timeUntilStart}s`;
+                    statusElement.style.backgroundColor = 'var(--accent-color)';
+                } else if (now >= startTime && now < endTime) {
+                    const secondsSinceStart = Math.floor((endTime - now) / 1000);
+                    statusElement.textContent = `Active ( ends in ${secondsSinceStart}s)`;
+                    statusElement.style.backgroundColor = 'green';
+                } else {
+                    statusElement.textContent = 'Completed';
+                    statusElement.style.backgroundColor = 'gray';
+                }
+            })();
+        {% endfor %}
+    }
+
+    updateTestStatus();
+    setInterval(updateTestStatus, 1000);
+</script>
 {% endblock %}
