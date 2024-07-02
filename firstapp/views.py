@@ -1,4 +1,5 @@
 from typing import Any
+from django.forms import BaseModelForm
 from django.shortcuts import render,redirect,HttpResponse
 from .forms import RegisterUser,FileUpload
 from django.contrib.auth import login,logout,authenticate
@@ -64,7 +65,11 @@ def user_logout(request):
 class addStudent(LoginRequiredMixin,PermissionRequiredMixin,CreateView):
     permission_required='firstapp.add_students'
     model=Students
-    fields={'name','teacher'}
+    fields={'name'}
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        teacher = Teacher.objects.get(name=self.request.user)
+        form.instance.teacher=teacher
+        return super().form_valid(form)
 
     
 
@@ -97,7 +102,10 @@ class studentdetail(LoginRequiredMixin,DetailView):
 class studentUpdate(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
     permission_required='firstapp.change_students'
     model=Students
-    fields={'name','description'}
+    fields={'description'}
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        form.instance.name=self.request.user
+        return super().form_valid(form)
 
 
 def handle_uploaded_file(f):
