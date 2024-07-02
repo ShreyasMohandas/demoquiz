@@ -1,8 +1,78 @@
 {% extends 'firstapp/base.html' %}
 
-{% block title %}Create Quiz{% endblock %}
-
 {% block body_block %}
+<style>
+    .form-container {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 20px;
+        background: var(--glass-bg-color, rgba(255, 255, 255, 0.6));
+        border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.4));
+        border-radius: var(--radius, 8px);
+        box-shadow: 0 2px 10px var(--glass-shadow, rgba(255, 255, 255, 0.2));
+    }
+
+    .form-container h1 {
+        color: var(--text-color, #000);
+        margin-bottom: 20px;
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .glass-form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="datetime-local"],
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--navbar-border, #ccc);
+        border-radius: var(--radius, 8px);
+        background-color: rgba(249, 249, 249, 0.8);
+        transition: border-color var(--transition-speed, 0.3s);
+    }
+
+    .form-group input[type="text"]:focus,
+    .form-group input[type="datetime-local"]:focus,
+    .form-group textarea:focus {
+        border-color: var(--primary-color, #007bff);
+        outline: none;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        background-color: var(--button-bg-color, rgba(0, 123, 255, 0.7));
+        color: #fff;
+        border: none;
+        border-radius: var(--radius, 8px);
+        cursor: pointer;
+        transition: background-color var(--transition-speed, 0.3s),
+                    transform var(--transition-speed, 0.3s),
+                    box-shadow var(--transition-speed, 0.3s);
+        font-size: 1em;
+    }
+
+    .btn:hover {
+        background-color: var(--button-hover-bg-color, rgba(0, 86, 179, 0.7));
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px var(--shadow-color, rgba(0, 0, 0, 0.1));
+    }
+</style>
+
 <div class="form-container">
     <h1>Create New Quiz</h1>
     <form action="" method="post" class="glass-form">
@@ -26,78 +96,4 @@
         <button type="submit" class="btn">Create Quiz</button>
     </form>
 </div>
-
-<style>
-    .form-container {
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
-    .glass-form {
-        background: var(--glass-bg);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius);
-        padding: 30px;
-        box-shadow: 0 4px 20px var(--glass-shadow);
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    label {
-        display: block;
-        margin-bottom: 5px;
-        color: var(--primary-color);
-        font-weight: 500;
-    }
-
-    input[type="text"],
-    input[type="datetime-local"],
-    textarea {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius);
-        background-color: var(--card-bg);
-        color: var(--text-color);
-        font-size: 16px;
-        transition: border-color var(--transition-speed);
-    }
-
-    input[type="text"]:focus,
-    input[type="datetime-local"]:focus,
-    textarea:focus {
-        outline: none;
-        border-color: var(--primary-color);
-    }
-
-    textarea {
-        resize: vertical;
-    }
-
-    .btn {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: var(--secondary-color);
-        color: #fff;
-        text-decoration: none;
-        border: none;
-        border-radius: var(--radius);
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color var(--transition-speed);
-    }
-
-    .btn:hover {
-        background-color: var(--accent-color);
-    }
-
-    @media (max-width: 768px) {
-        .glass-form {
-            padding: 20px;
-        }
-    }
-</style>
 {% endblock %}

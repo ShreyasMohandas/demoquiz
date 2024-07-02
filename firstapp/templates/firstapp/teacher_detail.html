@@ -18,7 +18,7 @@
             <tbody>
                 {% for student in teacher.students.all %}
                     <tr>
-                        <td><a href="{% url 'firstapp:detail-student' pk=student.id %}" class="btn">{{ student.name }}</a></td>
+                        <td><a href="{% url 'firstapp:detail-student' pk=student.id %}" class="tag-button">{{ student.name }}</a></td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -41,7 +41,7 @@
                     <tr>
                         <td>{{ test.display_name }}</td>
                         <td>{{ test.id }}</td>
-                        <td><a href="{% url 'firstapp:download-file' test.file_path %}" class="btn">Download</a></td>
+                        <td><a href="{% url 'firstapp:download-file' test.file_path %}" class="tag-button">Download</a></td>
                         <td><span class="status-btn" id="test-status-{{ test.id }}">Active</span></td>
                     </tr>
                 {% endfor %}
@@ -51,8 +51,8 @@
 
     {% if perms.firstapp.add_students %}
         <div class="action-buttons">
-            <a href="{% url 'firstapp:add-student' %}" class="btn">Add Student</a>
-            <a href="{% url 'firstapp:upload-file' %}" class="btn">Upload File</a>
+            <a href="{% url 'firstapp:add-student' %}" class="update-profile-link">Add Student</a>
+            <a href="{% url 'firstapp:upload-file' %}" class="update-profile-link">Upload File</a>
         </div>
     {% endif %}
 </div>
@@ -68,7 +68,29 @@
     }
 
     .school-info {
+        padding: 20px;
         margin-bottom: 30px;
+    }
+    .school-info h2{
+        color: var(--primary-color);
+        margin-bottom: 15px;
+    }
+    .tag-button {
+        background-color: var(--secondary-color);
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: var(--radius);
+        text-decoration: none;
+        font-size: 0.9em;
+        transition: background-color var(--transition-speed);
+    }
+
+    .tag-button:hover {
+        background-color: var(--accent-color);
+    }
+
+    .table-responsive {
+        overflow-x: auto;
     }
 
     .table-responsive {

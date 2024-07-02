@@ -35,11 +35,11 @@
                     <tr>
                         <td>{{ test.display_name }}</td>
                         {% if test.id in attempted_tests %}
-                            <td><a href="{% url 'firstapp:preview-test' id=test.id  stud_id=students.id %}" class="btn">Preview</a></td>
-                            <td><a href="{% url 'firstapp:download-file' test.file_path %}" class="btn">Download</a></td>
+                            <td><a href="{% url 'firstapp:preview-test' id=test.id  stud_id=students.id %}" class="tag-button">Preview</a></td>
+                            <td><a href="{% url 'firstapp:download-file' test.file_path %}" class="tag-button">Download</a></td>
                         {% else %}
                             {% if perms.firstapp.change_students %}
-                                <td><a href="{% url 'firstapp:attend-test' test_id=test.id %}" class="btn">Take Test</a></td>
+                                <td><a href="{% url 'firstapp:attend-test' test_id=test.id %}" class="tag-button">Take Test</a></td>
                             {% else %}
                                 <td><span class="status-btn">Not Taken</span></td>
                             {% endif %}
@@ -53,7 +53,7 @@
     
     {% if perms.firstapp.change_students %}
         <div class="action-buttons">
-            <a href="{% url 'firstapp:update-student' pk=students.pk %}" class="btn">Update Profile</a>
+            <a href="{% url 'firstapp:update-student' pk=students.pk %}" class="update-profile-link">Update Profile</a>
         </div>
     {% endif %}
 </div>
