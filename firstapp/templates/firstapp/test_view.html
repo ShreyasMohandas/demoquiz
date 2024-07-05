@@ -1,0 +1,13 @@
+{% extends "firstapp/base.html" %}
+
+{% block body_block %}
+<h1>{{test.display_name}}</h1>
+<h1>Attempted Students</h1>
+{%for student in attempted_stud%}
+<p>student name = {{student.name.username}}</p>
+{%endfor%}
+<h1>Late Attempted Students</h1>
+{%for student in late_attempted_stud%}
+<p>student name = {{student.name.username}}</p>
+{%endfor%}
+{% endblock %}

@@ -280,3 +280,20 @@ def rectification_quiz(request,topic_id):
                     }
             )
 
+
+
+class Test_View(DetailView):
+    template_name='firstapp/test_view.html'
+    model=Test
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context= super().get_context_data(**kwargs)
+        context["attempted_stud"]=Students.objects.filter(
+            test_history__test=self.object,
+            test_history__attempt_start__lte=self.object.end_time,
+        )
+        context["late_attempted_stud"]=Students.objects.filter(
+            test_history__test=self.object,
+            test_history__attempt_start__gt=self.object.end_time,
+        )
+        return context
+    

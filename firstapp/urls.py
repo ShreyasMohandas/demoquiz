@@ -12,6 +12,7 @@ urlpatterns = [
     path('update-student/<int:pk>/',views.studentUpdate.as_view(),name='update-student'),
     path('list-teachers/',views.teacherdata.as_view(),name='list-teachers'),
     path('teacher/<int:pk>/', views.teacherdetail.as_view(), name='teacher_detail'),
+    path('test-dashboard/<int:pk>/', views.Test_View.as_view(), name='test_dashboard'),
     path('students/<int:pk>/',views.studentdetail.as_view(),name='detail-student'),
     path("ask-question/",views.ask_question,name="user-input"),
     path('upload-file/',views.upload_file,name='upload-file'),
