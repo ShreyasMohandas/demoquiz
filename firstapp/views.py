@@ -7,8 +7,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin,LoginRequiredMixin
 from .models import *
 from firstapp import rag
+
 from django.http import FileResponse
-from django.views.generic import CreateView,UpdateView,DeleteView,DetailView,ListView
+from django.views.generic import CreateView,UpdateView,DeleteView,DetailView,ListView,TemplateView
 import os
 from django.utils.dateparse import parse_datetime
 from django.conf import settings
@@ -296,4 +297,3 @@ class Test_View(DetailView):
             test_history__attempt_start__gt=self.object.end_time,
         )
         return context
-    

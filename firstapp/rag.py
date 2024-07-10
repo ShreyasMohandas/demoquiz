@@ -1,6 +1,7 @@
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores import FAISS
+from django.http import request
 
 from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
