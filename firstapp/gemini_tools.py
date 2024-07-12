@@ -1,3 +1,11 @@
+import os
+import sys
+import django
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'modelrev2.settings')
+django.setup()
+
+
 from django.utils import timezone
 from google.generativeai.protos import FunctionDeclaration, Schema, Type
 from django.core.exceptions import ObjectDoesNotExist

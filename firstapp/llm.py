@@ -1,16 +1,14 @@
 import os
 import sys
 import django
+import google.generativeai as genai
+from gemini_tools import *
+from firstapp.models import *
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'modelrev2.settings')
 django.setup()
-
-
-from firstapp.models import *
-import google.generativeai as genai
-from firstapp.gemini_tools import *
-
+from gemini_tools import *
 
 genai.configure(api_key="AIzaSyDM0bMWBOV-mmmG0lgdgiq022YFQa9CtbI")
 os.environ["GOOGLE_API_KEY"] = "AIzaSyDM0bMWBOV-mmmG0lgdgiq022YFQa9CtbI"
@@ -23,6 +21,8 @@ safety_settings = [
     {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
     {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
 ]
+
+
 
 model2 = genai.GenerativeModel(
     model_name="gemini-1.5-flash",
@@ -52,7 +52,7 @@ model2 = genai.GenerativeModel(
 chat = model2.start_chat(enable_automatic_function_calling=True)
 
 
-student_id = 1 
+student_id = 3 
 greeting_message = personalized_greeting(student_id)
 print(greeting_message)
 

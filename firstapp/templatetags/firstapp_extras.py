@@ -22,3 +22,26 @@ def toUTC(test):
 @register.filter(is_safe=True)
 def test_specific_topic(value,arg):
     return Topics.objects.filter(student=value,test=arg)
+
+@register.filter(is_safe=True)
+def student_test_start_time(value,arg):
+    return TestAttempt.objects.get(student=value,test=arg).attempt_start
+
+@register.filter(is_safe=True)
+def student_test_end_time(value,arg):
+    return TestAttempt.objects.get(student=value,test=arg).attempt_end
+
+@register.filter(is_safe=True)
+def student_test_attempt_marks(value,arg):
+    return TestAttempt.objects.get(student=value,test=arg).test_marks
+
+@register.filter(is_safe=True)
+def student_test_attempt_status(value,arg):
+    correct_attempt=Students.objects.filter(
+        test_history__test=arg,
+        test_history__attempt_start__lte=arg.end_time
+    )
+    correct_attempt_names=[i.name.username for i in correct_attempt]
+    if value.name.username in correct_attempt_names:
+        return "Accepted"
+    return "Late"
