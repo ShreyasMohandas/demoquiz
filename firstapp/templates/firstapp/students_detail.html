@@ -1,5 +1,5 @@
 {% extends "firstapp/base.html" %}
-
+{% load firstapp_extras %}
 {% block title %}Student Details{% endblock %}
 
 {% block body_block %}
@@ -11,14 +11,6 @@
         <p><strong>About:</strong> {{ students.description }}</p>
     </div>
     
-    <div class="weaknesses-section">
-        <h2>Weaknesses</h2>
-        <div class="tags">
-            {% for tag in students.topics.all %}
-                <a href="{% url 'firstapp:improvement-test' topic_id=tag.id %}" class="tag-button">{{ tag }}</a>
-            {% endfor %}
-        </div>
-    </div>
 
     <h2>Tests</h2>
     <div class="table-responsive">
@@ -168,4 +160,6 @@
         }
     }
 </style>
+
+
 {% endblock %}

@@ -22,5 +22,99 @@
                 <p>Marks awarded - {{ question.marks }}</p>
             {% endif %}
         {% endfor %}
+
+        {% if test_mode|compareTwo:'one' %}
+        <div class="AoI">
+            <h3>Area of improvements - click for improvement test</h3>
+            {% for tag in tags %}
+                <a href="{% url 'firstapp:improvement-test' topic_id=tag.id %}" class="tag-button">{{ tag }}</a>
+            {% endfor %}
+        </div>
+        {%endif%}
         
+<style>
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+    
+        .tag-button {
+            background-color: var(--secondary-color);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: background-color var(--transition-speed);
+        }
+    
+        .tag-button:hover {
+            background-color: var(--accent-color);
+        }
+    
+        .table-responsive {
+            overflow-x: auto;
+        }
+    
+        .bordered-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+    
+        .bordered-table th,
+        .bordered-table td {
+            border: 1px solid var(--glass-border);
+            padding: 8px;
+        }
+    
+        .bordered-table th {
+            background-color: var(--glass-bg);
+        }
+    
+        .status-btn {
+            background-color: var(--accent-color);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: var(--radius);
+            font-size: 0.9em;
+        }
+    
+        .action-buttons {
+            margin-top: 30px;
+        }
+        .bordered-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+    
+        .bordered-table th,
+        .bordered-table td {
+            border: 1px solid var(--glass-border);
+            padding: 8px;
+        }
+    
+        .bordered-table th {
+            background-color: var(--glass-bg);
+        }
+    
+        @media (max-width: 768px) {
+            .student-details {
+                padding: 20px;
+            }
+    
+            .tags {
+                flex-direction: column;
+            }
+    
+            .tag-button {
+                margin: 2px;
+                text-align: center;
+            }
+        }
+    </style>
+
+
+
 {% endblock %}

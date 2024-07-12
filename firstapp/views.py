@@ -221,6 +221,7 @@ def preview_test(request,id,stud_id):
     student,_=Students.objects.get_or_create(id=stud_id)
     test_master=Test.objects.get(id=id)
     test=TestAttempt.objects.get(student_id=student.id,test_id=id)
+    topic_tags=Topics.objects.filter(test=test_master,student=student)
     print(test.Submitted_data)
     return render(
         request,
@@ -233,7 +234,8 @@ def preview_test(request,id,stud_id):
             'student_pk':student.name.pk,
             'start_time':test.attempt_start,
             'end_time':test.attempt_end,
-            'test_mode':'one'
+            'test_mode':'one',
+            'tags':topic_tags
         }
     )
 
