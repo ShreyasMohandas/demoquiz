@@ -7,9 +7,12 @@
 <div class="table-responsive">
     <h1>Test Details</h1>
     <div class="info-card">
-        <h2>{{ test.display_name }}</h2>
-        <p><strong>Username:</strong> {{ students.name.username }}</p>
-        <p><strong>About:</strong> {{ students.description }}</p>
+        <h2>Title : {{ test.display_name }}</h2>
+        <p><strong>Command:</strong> {{ test.test_name }}</p>
+        <p><strong>Start Time:</strong> {{ test.start_time }}</p>
+        <p><strong>End Time:</strong> {{ test.end_time }}</p>
+        <p><strong>Test Marks:</strong> {{ test.test_total_marks }}</p>
+        <p><strong>Class Average:</strong> {{ average }}</p>
     </div>
     <table class="bordered-table" >
         <thead>
