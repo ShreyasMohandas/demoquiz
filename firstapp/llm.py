@@ -39,12 +39,14 @@ model2 = genai.GenerativeModel(
         "You are a helpful assistant who uses ONLY the tools given to you to answer specific questions. "
         "For questions related to a student's academic details, you have the following tools:\n"
         "- 'get_student_tests(student_id)': to fetch the tests assigned to the student.\n"
-        "- 'get_student_test_attempts(student_id)': to fetch the test attempts made by the student.\n"
+        "- 'get_student_test_attempts(student_id)': Fetch the test attempts made by the student which includes a list of dictionaries with details such as the test name, obtained marks, total marks, and topics to focus on.\n"
         "- 'get_student_topics(student_id)': to fetch the Weackness topics related to the student.\n"
         "- 'get_student_name(student_id)': to fetch the student's name.\n"
         "- 'get_student_details(student_id)': to fetch the student's details (name, teacher, description, added date).\n"
         "- 'get_upcoming_tests(student_id)': to fetch the upcoming tests for the student.\n"
         "- 'personalized_greeting(student_id)': to generate a personalized greeting for the student, informing them of upcoming tests and offering assistance.\n"
+        " -'get_student_answer_details': to Fetch the test submission details of students which is in form of a list of dictionary data. each elelement of list includes details of each question such as question, options, correct_answer, difficulty, solution, tags,total marks of question, and answer_given.\n"
+    
         "REMEMBER THAT YOU ARE CHATTING WITH THE STUDENT"
     ),
 )
@@ -52,15 +54,16 @@ model2 = genai.GenerativeModel(
 chat = model2.start_chat(enable_automatic_function_calling=True)
 
 
-student_id = 3 
+student_id = 2
 greeting_message = personalized_greeting(student_id)
-print(greeting_message)
+def greeting():
+    return greeting_message
 
 flag=True
 
-while(1):
+async def chat_with_me(question):
     
-    user_input = input("user: ")
+    user_input = question
     response = chat.send_message(user_input+f" my student id is {student_id}")
 
     for part in response.parts:
@@ -69,15 +72,19 @@ while(1):
             args = fn.args
 
             if function_name == "get_student_tests":
-                result = get_student_tests(args["student_id"])
+                result = await get_student_tests(args["student_id"])
+            elif function_name == "personalized_greeting":
+                result = await personalized_greeting(args["student_id"])
             elif function_name == "get_student_test_attempts":
-                result = get_student_test_attempts(args["student_id"])
+                result = await get_student_test_attempts(args["student_id"])
+            elif function_name == "get_student_answer_details":
+                result = await get_student_answer_details(args["student_id"])
             elif function_name == "get_student_topics":
-                result = get_student_topics(args["student_id"])
+                result = await get_student_topics(args["student_id"])
             elif function_name == "get_student_name":
-                result = get_student_name(args["student_id"])
+                result = await get_student_name(args["student_id"])
             elif function_name == "get_student_details":
-                result = get_student_details(args["student_id"])
+                result = await get_student_details(args["student_id"])
             else:
                 result = {"error": f"Unknown function: {function_name}"}
 
@@ -91,4 +98,4 @@ while(1):
             ]
             response = chat.send_message(response_parts)
     if not response.parts[0].function_call:
-        print(response.text)
+        return response.text

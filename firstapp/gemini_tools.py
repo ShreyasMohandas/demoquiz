@@ -4,6 +4,7 @@ import django
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'modelrev2.settings')
 django.setup()
+from asgiref.sync import sync_to_async
 
 
 from django.utils import timezone
@@ -11,7 +12,7 @@ from google.generativeai.protos import FunctionDeclaration, Schema, Type
 from django.core.exceptions import ObjectDoesNotExist
 from firstapp.models import *
 
-
+@sync_to_async
 def get_student_tests(student_id: int):
     try:
         student = Students.objects.get(pk=student_id)
@@ -22,6 +23,7 @@ def get_student_tests(student_id: int):
     except ObjectDoesNotExist:
         return {"error": "Student not found"}
 
+@sync_to_async
 def get_student_test_attempts(student_id: int):
     try:
         student = Students.objects.get(pk=student_id)
@@ -29,11 +31,25 @@ def get_student_test_attempts(student_id: int):
         return [{
             'test': attempt.test.display_name,
             'obtained marks': attempt.test_marks,
-            'total marks of test':attempt.test.test_total_marks
+            'total marks  of test':attempt.test.test_total_marks,
+            'topics to focus':[topic.topic for topic in Topics.objects.filter(test=attempt.test,student=student)]
         } for attempt in tests]
     except ObjectDoesNotExist:
         return {"error": "Student not found"}
-
+    
+@sync_to_async
+def get_student_answer_details(student_id: int):
+    try:
+        student = Students.objects.get(pk=student_id)
+        tests = TestAttempt.objects.filter(student=student)
+        return [{
+            'test': i.test.display_name,
+            'test result details':i.Submitted_data
+        } for i in tests]
+    except ObjectDoesNotExist:
+        return {"error": "Student not found"}
+    
+@sync_to_async
 def get_student_topics(student_id: int):
     try:
         student = Students.objects.get(pk=student_id)
@@ -42,6 +58,7 @@ def get_student_topics(student_id: int):
     except ObjectDoesNotExist:
         return {"error": "Student not found"}
 
+@sync_to_async
 def get_student_name(student_id: int):
     try:
         student = Students.objects.get(pk=student_id)
@@ -49,6 +66,7 @@ def get_student_name(student_id: int):
     except ObjectDoesNotExist:
         return {"error": "Student not found"}
 
+@sync_to_async
 def get_student_details(student_id: int):
     try:
         student = Students.objects.get(pk=student_id)
@@ -60,7 +78,8 @@ def get_student_details(student_id: int):
         }
     except ObjectDoesNotExist:
         return {"error": "Student not found"}
-    
+
+@sync_to_async   
 def get_upcoming_tests(student_id: int):
     try:
         student = Students.objects.get(pk=student_id)
@@ -70,11 +89,12 @@ def get_upcoming_tests(student_id: int):
     except ObjectDoesNotExist:
         return {"error": "Student not found"}
 
+@sync_to_async
 def personalized_greeting(student_id: int):
     try:
         student = Students.objects.get(pk=student_id)
         name = student.name.username
-        upcoming_tests = get_upcoming_tests(student_id)
+        upcoming_tests = [{"test name": test.display_name, "scheduled time": test.start_time} for test in Test.objects.filter(teacher=student.teacher, start_time__gte=timezone.now())]
         
         greeting = f"Welcome back, {name}!"
         
@@ -108,7 +128,16 @@ tools = [
     ),
     FunctionDeclaration(
         name="get_student_test_attempts",
-        description="Fetch the test attempts made by the student.",
+        description="Fetch the test attempts made by the student which includes a list of dictionaries with details such as the test name, obtained marks, total marks, and topics to focus on.",
+        parameters=Schema(
+            type=Type.OBJECT,
+            properties={"student_id": Schema(type=Type.NUMBER)},
+            required=["student_id"]
+        )
+    ),
+    FunctionDeclaration(
+        name="get_student_answer_details",
+        description="Fetch the test submission details of students which is in form of a list of dictionary data. each elelement of list includes details of each question such as question, options, correct_answer, difficulty, solution, tags,total marks of question, and answer_given.",
         parameters=Schema(
             type=Type.OBJECT,
             properties={"student_id": Schema(type=Type.NUMBER)},
@@ -117,7 +146,7 @@ tools = [
     ),
     FunctionDeclaration(
         name="get_student_topics",
-        description="Fetch the topics related to the student.",
+        description="Fetch the weakness topics related to the student.",
         parameters=Schema(
             type=Type.OBJECT,
             properties={"student_id": Schema(type=Type.NUMBER)},
