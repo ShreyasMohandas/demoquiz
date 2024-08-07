@@ -1,118 +1,44 @@
 {% extends 'firstapp/base.html' %}
+{% block title %}Login{% endblock %}
+{% load static %}
+
+{% block style_block %}
+<link rel="stylesheet" href="{% static 'firstapp/login_register.css' %}">
+{% endblock %}
 
 {% block body_block %}
-<style>
-    .login-container {
-        width: 100%;
-        max-width: 400px;
-        margin: 0 auto;
-        padding: 20px;
-        background: var(--glass-bg-color, rgba(255, 255, 255, 0.6));
-        border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.4));
-        border-radius: var(--radius, 8px);
-        box-shadow: 0 2px 10px var(--glass-shadow, rgba(255, 255, 255, 0.2));
-    }
 
-    .login-container h2 {
-        color: var(--text-color, #000);
-        margin-bottom: 20px;
-        font-size: 1.5rem;
-        text-align: center;
-    }
+<div class="content-container">
+    <h1 class="section-title">Login</h1>
 
-    .form-group {
-        margin-bottom: 15px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-    }
-
-    .form-group input[type="text"],
-    .form-group input[type="password"] {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid var(--navbar-border, #ccc);
-        border-radius: var(--radius, 8px);
-        background-color: rgba(249, 249, 249, 0.8);
-        transition: border-color var(--transition-speed, 0.3s);
-    }
-
-    .form-group input[type="text"]:focus,
-    .form-group input[type="password"]:focus {
-        border-color: var(--primary-color, #007bff);
-        outline: none;
-    }
-
-    .button-group {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 20px;
-    }
-
-    .button-group button {
-        padding: 10px 20px;
-        background-color: var(--button-bg-color, rgba(0, 123, 255, 0.7));
-        color: #fff;
-        border: none;
-        border-radius: var(--radius, 8px);
-        cursor: pointer;
-        transition: background-color var(--transition-speed, 0.3s),
-                    transform var(--transition-speed, 0.3s),
-                    box-shadow var(--transition-speed, 0.3s);
-        font-size: 1em;
-    }
-
-    .button-group button:hover {
-        background-color: var(--button-hover-bg-color, rgba(0, 86, 179, 0.7));
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px var(--shadow-color, rgba(0, 0, 0, 0.1));
-    }
-
-    .messages {
-        list-style: none;
-        padding: 0;
-        margin-bottom: 15px;
-    }
-
-    .messages li {
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: var(--radius, 8px);
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-</style>
-
-<div class="login-container">
-    <h2>Login</h2>
-    <form action="" method="post">
+    <form method="post" class="form">
         {% csrf_token %}
         
         {% if messages %}
-        <ul class="messages">
+        <div class="messages">
             {% for message in messages %}
-            <li>{{ message }}</li>
+            <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
             {% endfor %}
-        </ul>
+        </div>
         {% endif %}
 
         <div class="form-group">
-            <label for="id_username">Username:</label>
-            <input type="text" name="username" maxlength="150" autofocus required id="id_username">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
         </div>
+
         <div class="form-group">
-            <label for="id_password1">Password:</label>
-            <input type="password" name="password1" autocomplete="new-password" required id="id_password1">
+            <label for="password1">Password:</label>
+            <input type="password" id="password1" name="password1" required>
         </div>
-        <div class="button-group">
-            <button type="submit">Login</button>
-            <button type="button" onclick="location.href='{% url 'firstapp:register' %}'">Register</button>
+
+        <div class="action-buttons">
+            <button type="submit" class="button button-primary">Login</button>
+            <a href="{% url 'firstapp:register' %}" class="button button-outline">Register</a>
         </div>
     </form>
 </div>
+
 {% endblock %}

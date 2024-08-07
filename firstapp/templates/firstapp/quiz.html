@@ -1,145 +1,63 @@
 {% extends "firstapp/base.html" %}
 
+{% load static %}
+{% block style_block %}
+<link rel="stylesheet" href="{% static 'firstapp/quiz.css' %}">
+{% endblock %}
+
 {% block body_block %}
-<div class="quiz-container">
-    <h1 class="quiz-title">Quiz</h1>
-    <form action="" method="post" id="quiz-form">
-        {% csrf_token %}
-        {% for question in questions %}
-            <div class="question-container" id="question-{{ question.id }}">
-                <h3 class="question-text">{{ question.id }}. {{ question.question }}</h3>
-                <p class="question-marks">Marks - {{ question.marks }}</p>
+<div class="quiz-container container">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Questions</h2>
+        </div>
+        <ul class="question-nav">
+            {% for question in questions %}
+            <li>
+                <button type="button" class="nav-button" data-question-id="question-{{ question.id }}">
+                    {{ question.id }}
+                </button>
+            </li>
+            {% endfor %}
+        </ul>
+        <button type="button" class="main-menu-button">Main Menu</button>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1 class="quiz-title">Quiz</h1>
+            <div class="timer" id="timer">15:00</div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            {% for question in questions %}
+            <div id="question-{{ question.id }}" class="question-container">
+                <div class="question-header">
+                    <span class="question-label">Question {{ question.id }}</span>
+                    <span class="question-tags">{{ question.tags }}</span>
+                </div>
+                <h3 class="question-text">{{ question.question }}</h3>
+                <p>Marks: {{ question.marks }}</p>
                 <div class="options-grid">
                     {% for option in question.options %}
-                        <div class="option-container">
-                            <input type="radio" name="question--{{ question.id }}" id="option--{{ question.id }}--{{ forloop.counter }}" value="{{ option }}">
-                            <label for="option--{{ question.id }}--{{ forloop.counter }}" class="option-label">{{ option }}</label>
-                        </div>
+                    <div class="option-container">
+                        <input type="radio" name="question--{{ question.id }}" id="option--{{ question.id }}--{{ forloop.counter }}" value="{{ option }}">
+                        <label for="option--{{ question.id }}--{{ forloop.counter }}" class="option-label">{{ option }}</label>
+                    </div>
                     {% endfor %}
                 </div>
             </div>
-        {% endfor %}
-        <div class="navigation-buttons">
-            <button type="button" id="prev-button" class="nav-button">Previous</button>
-            <button type="button" id="next-button" class="nav-button">Next</button>
-            <button type="submit" id="submit-button" class="submit-button" style="display:none;">Submit</button>
-        </div>
-    </form>
+            {% endfor %}
+
+            <div class="navigation-buttons">
+                <button type="button" class="button button-outline" id="prev-button">Previous</button>
+                <button type="button" class="button button-outline" id="next-button">Next</button>
+                <button type="submit" class="button button-primary" id="submit-button">Submit</button>
+            </div>
+        </form>
+    </div>
 </div>
-
-<style>
-    .quiz-container {
-        max-width: 800px;
-        margin: 2rem auto;
-        padding: 2rem;
-        background-color: var(--glass-bg);
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .quiz-title {
-        color: var(--accent-color);
-        text-align: center;
-        margin-bottom: 2rem;
-        font-size: 2.5rem;
-    }
-
-    .question-container {
-        margin-bottom: 2rem;
-        padding: 1.5rem;
-        background-color: rgba(255, 255, 255, 0.7);
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    .question-text {
-        color: #333;
-        font-size: 1.2rem;
-        margin-bottom: 1rem;
-    }
-
-    .question-marks {
-        font-style: italic;
-        color: #666;
-        margin-bottom: 1rem;
-    }
-
-    .options-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-
-    .option-container {
-        position: relative;
-    }
-
-    .option-container input[type="radio"] {
-        position: absolute;
-        opacity: 0;
-    }
-
-    .option-label {
-        color: #333;
-        display: block;
-        padding: 0.75rem 1rem;
-        background-color: #f0f0f0;
-        border: 2px solid #ddd;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .option-container input[type="radio"]:checked + .option-label {
-        background-color: var(--accent-color);
-        color: white;
-        border-color: var(--accent-color);
-    }
-
-    .navigation-buttons {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 2rem;
-    }
-
-    .nav-button, .submit-button {
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1rem;
-        transition: background-color 0.3s ease;
-    }
-
-    .nav-button {
-        background-color: #f0f0f0;
-        color: #333;
-    }
-
-    .nav-button:hover {
-        background-color: #e0e0e0;
-    }
-
-    .submit-button {
-        background-color: var(--accent-color);
-        color: white;
-    }
-
-    .submit-button:hover {
-        background-color: #0056b3;
-    }
-
-    @media (max-width: 768px) {
-        .quiz-container {
-            padding: 1rem;
-            margin: 1rem;
-        }
-
-        .options-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -147,6 +65,7 @@
         const prevButton = document.getElementById('prev-button');
         const nextButton = document.getElementById('next-button');
         const submitButton = document.getElementById('submit-button');
+        const navButtons = document.querySelectorAll('.nav-button');
         let currentQuestionIndex = 0;
 
         function showQuestion(index) {
@@ -157,6 +76,13 @@
             nextButton.style.display = index === questions.length - 1 ? 'none' : 'inline-block';
             submitButton.style.display = index === questions.length - 1 ? 'inline-block' : 'none';
         }
+
+        navButtons.forEach((button, index) => {
+            button.addEventListener('click', function() {
+                currentQuestionIndex = index;
+                showQuestion(currentQuestionIndex);
+            });
+        });
 
         prevButton.addEventListener('click', function() {
             if (currentQuestionIndex > 0) {
@@ -173,6 +99,23 @@
         });
 
         showQuestion(currentQuestionIndex);
+
+        // Timer
+        const timerElement = document.getElementById('timer');
+        let timeLeft = 15 * 60; // 15 minutes in seconds
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            if (timeLeft > 0) {
+                timeLeft--;
+            } else {
+                document.querySelector('form').submit();
+            }
+        }
+
+        setInterval(updateTimer, 1000);
     });
 </script>
 {% endblock %}

@@ -1,9 +1,9 @@
 from typing import Any
 from django.forms import BaseModelForm
 from django.shortcuts import render,redirect,HttpResponse
-from .forms import RegisterUser,FileUpload
+from .forms import *
 from django.contrib.auth import login,logout,authenticate
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin,LoginRequiredMixin
 from .models import *
 from firstapp import rag
@@ -14,6 +14,8 @@ import os
 from django.utils.dateparse import parse_datetime
 from django.conf import settings
 from django.utils import timezone
+from django.urls import reverse_lazy
+
 
 # Create your views here.
 def user_register(request):
@@ -72,6 +74,10 @@ class addStudent(LoginRequiredMixin,PermissionRequiredMixin,CreateView):
         form.instance.teacher=teacher
         return super().form_valid(form)
 
+class deleteStudent(LoginRequiredMixin,PermissionRequiredMixin,DeleteView):
+    permission_required='firstapp.add_students'
+    model=Students
+    success_url=reverse_lazy('firstapp:home')
     
 
 class teacherdata(LoginRequiredMixin,PermissionRequiredMixin,ListView):
@@ -139,6 +145,47 @@ def ask_question(request):
     return render(request,"firstapp/ask_question.html")
 
 
+class deleteTest(LoginRequiredMixin,PermissionRequiredMixin,DeleteView):
+    permission_required='firstapp.add_students'
+    model=Test
+    success_url=reverse_lazy('firstapp:home')
+
+
+class updateTest(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
+    permission_required='firstapp.add_students'
+    model=Test
+    form_class=UpdateTestForm
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        form_data = form.save(commit=False)
+        questions = form_data.test_data.get('questions')
+        for i in range(len(questions)):
+            questions[i][f'question'] = form.cleaned_data.get(f'question_{i}')
+            questions[i]['correct_answer'] = form.cleaned_data.get(f'correct_answer_{i}')
+            questions[i][f'marks'] = form.cleaned_data.get(f'marks_{i}')
+            if questions[i][f'marks'] == 5:
+                questions[i][f'difficulty']='Easy'
+            elif questions[i][f'marks'] == 10:
+                questions[i][f'difficulty']='Medium'
+            elif questions[i][f'marks'] == 20:
+                questions[i][f'difficulty']='Hard'
+            for j in range(len(questions[i]['options'])):
+                questions[i]['options'][j]=form.cleaned_data.get(f'option_{i}_{j}')
+        print(form_data)
+        form.save()
+            
+        return super().form_valid(form)
+    
+@login_required
+@permission_required('firstapp.add_students')
+def original_test_view(request,test_id):
+    test=Test.objects.get(id=test_id)
+
+    return render(
+        request,
+        'firstapp/preview_teacher_test.html',
+        context={'test':test}
+    )
+
 
 @login_required
 def quiz(request,question):
@@ -148,7 +195,7 @@ def quiz(request,question):
         request.session['gen_ques']=question_list
 
         teacher,_=Teacher.objects.get_or_create(name=request.user)
-        Test.objects.create(
+        test=Test.objects.create(
             teacher=teacher,
             test_name=request.session.get('test_name'),
             display_name=request.session.get('title_quiz'),
@@ -164,7 +211,7 @@ def quiz(request,question):
         del request.session['datetime_start']
         del request.session['datetime_end']
         del request.session['gen_ques']
-        return redirect('firstapp:teacher_detail',pk=teacher.pk)
+        return redirect('firstapp:test_formation',test_id=test.id)
     
 
 def attend_quiz(request,test_id):
@@ -186,12 +233,23 @@ def attend_quiz(request,test_id):
         obtained_marks=0
         topicstags=[]
         for i in range(1,len(question_list['questions'])+1):
-            question_list['questions'][i-1].update({'answer_given_value':submitted_data['question--'+str(i)]})
-            if submitted_data['question--'+str(i)] == question_list['questions'][i-1]['correct_answer']:
-                question_list['questions'][i-1].update({'answer_given':'correct'})
-                obtained_marks+=int(question_list['questions'][i-1]['marks'])
+            if 'question--'+str(i) in submitted_data:
+                question_list['questions'][i-1].update({'answer_given_value':submitted_data['question--'+str(i)]})
+                if submitted_data['question--'+str(i)] == question_list['questions'][i-1]['correct_answer']:
+                    question_list['questions'][i-1].update({'answer_given':'correct'})
+                    obtained_marks+=int(question_list['questions'][i-1]['marks'])
+                else:
+                    question_list['questions'][i-1].update({'answer_given':'incorrect'})
+                    for i in question_list['questions'][i-1]['tags']:
+                        if i not in topicstags:
+                            topicstags.append(i)
+                            Topics.objects.create(
+                                student=student,
+                                topic=i,
+                                test=test
+                            )
             else:
-                question_list['questions'][i-1].update({'answer_given':'incorrect'})
+                question_list['questions'][i-1].update({'answer_given':'unattempted'})
                 for i in question_list['questions'][i-1]['tags']:
                     if i not in topicstags:
                         topicstags.append(i)
@@ -231,7 +289,7 @@ def preview_test(request,id,stud_id):
             'total_marks': test_master.test_total_marks,
             'questions':test.Submitted_data,
             'preview':None,
-            'student_pk':student.name.pk,
+            'student':student,
             'start_time':test.attempt_start,
             'end_time':test.attempt_end,
             'test_mode':'one',
@@ -261,12 +319,15 @@ def rectification_quiz(request,topic_id):
         question_list=request.session.get('gen_ques')
         obtained_marks=0
         for i in range(1,len(question_list['questions'])+1):
-            question_list['questions'][i-1].update({'answer_given_value':submitted_data['question--'+str(i)]})
-            if submitted_data['question--'+str(i)] == question_list['questions'][i-1]['correct_answer']:
-                question_list['questions'][i-1].update({'answer_given':'correct'})
-                obtained_marks+=int(question_list['questions'][i-1]['marks'])
+            if 'question--'+str(i) in submitted_data:
+                question_list['questions'][i-1].update({'answer_given_value':submitted_data['question--'+str(i)]})
+                if submitted_data['question--'+str(i)] == question_list['questions'][i-1]['correct_answer']:
+                    question_list['questions'][i-1].update({'answer_given':'correct'})
+                    obtained_marks+=int(question_list['questions'][i-1]['marks'])
+                else:
+                    question_list['questions'][i-1].update({'answer_given':'incorrect'})
             else:
-                question_list['questions'][i-1].update({'answer_given':'incorrect'})
+                question_list['questions'][i-1].update({'answer_given':'unattempted'})
         test_marks=rag.calculate_total_marks(question_list)
         print(obtained_marks,test_marks)
         if obtained_marks/test_marks>0.8:
@@ -297,3 +358,12 @@ class Test_View(LoginRequiredMixin,PermissionRequiredMixin,DetailView):
         context["test"]=self.object
         context["average"]=TestAttempt.objects.filter(test=self.object).aggregate(Avg('test_marks'))['test_marks__avg']
         return context
+    
+def react_chatbot(request):
+    student,_=Students.objects.get_or_create(name=request.user)
+    context={
+        'student_id':student.id,
+        'student_name':student.name
+    }
+    return render(request,'firstapp/chatbot.html',context=context)
+

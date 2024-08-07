@@ -13,7 +13,11 @@ urlpatterns = [
     path('list-teachers/',views.teacherdata.as_view(),name='list-teachers'),
     path('teacher/<int:pk>/', views.teacherdetail.as_view(), name='teacher_detail'),
     path('test-dashboard/<int:pk>/', views.Test_View.as_view(), name='test_dashboard'),
+    path('test-formation/<int:test_id>/', views.original_test_view, name='test_formation'),
     path('students/<int:pk>/',views.studentdetail.as_view(),name='detail-student'),
+    path('delete-student/<int:pk>/',views.deleteStudent.as_view(),name='delete-student'),
+    path('delete-test/<int:pk>/',views.deleteTest.as_view(),name='delete-test'),
+    path('update-test/<int:pk>/',views.updateTest.as_view(),name='update-test'),
     path("ask-question/",views.ask_question,name="user-input"),
     path('upload-file/',views.upload_file,name='upload-file'),
     path('quiz/<str:question>/', views.quiz, name='quiz'),
@@ -21,4 +25,5 @@ urlpatterns = [
     path('improvement-test/<int:topic_id>',views.rectification_quiz,name='improvement-test'),
     path('preview-test/<int:id>/student/<int:stud_id>/',views.preview_test,name='preview-test'),
     path('download-file/<path:file_path>',views.download_file,name='download-file'),
+    path('react-chatbot/',views.react_chatbot,name="react-chatbot"),
 ]

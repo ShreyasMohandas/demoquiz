@@ -39,139 +39,147 @@
         </div>
     </div>
 </div>
-
 <style>
-    .form-container {
-        max-width: 500px;
-        margin: 0 auto;
-    }
+    :root {
+    --primary-color: #2ea44f;
+    --secondary-color: #0366d6;
+    --accent-color: #22863a;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(27, 31, 35, 0.15);
+    --glass-shadow: rgba(27, 31, 35, 0.15);
+    --radius: 6px;
+    --transition-speed: 0.3s;
+    --text-color: var(--color-text);
+}
 
-    h1 {
-        color: var(--primary-color);
-        text-align: center;
-        margin-bottom: 30px;
-    }
+.form-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
 
-    .glass-form {
-        background: var(--glass-bg);
-        /* backdrop-filter: blur(10px); */
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius);
-        padding: 30px;
-        box-shadow: 0 4px 20px var(--glass-shadow);
-    }
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
 
-    .file-input-group {
-        position: relative;
-        margin-bottom: 20px;
-    }
+.glass-form {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 30px;
+    box-shadow: 0 4px 20px var(--glass-shadow);
+}
 
-    .file-label {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 15px;
-        background-color: var(--secondary-color);
-        color: #fff;
-        border-radius: var(--radius);
-        cursor: pointer;
-        transition: background-color var(--transition-speed);
-    }
+.file-input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
 
-    .file-label:hover {
-        background-color: var(--accent-color);
-    }
+.file-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    background-color: var(--secondary-color);
+    color: #fff;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background-color var(--transition-speed);
+}
 
-    .file-label i {
-        margin-right: 10px;
-        font-size: 1.2em;
-    }
+.file-label:hover {
+    background-color: var(--accent-color);
+}
 
-    .file-input {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        cursor: pointer;
-    }
+.file-label i {
+    margin-right: 10px;
+    font-size: 1.2em;
+}
 
-    .file-name {
-        margin-top: 10px;
-        text-align: center;
-        color: var(--text-color);
-    }
+.file-input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
 
-    .btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        padding: 15px;
-        background-color: var(--primary-color);
-        color: #fff;
-        border: none;
-        border-radius: var(--radius);
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color var(--transition-speed);
-    }
+.file-name {
+    margin-top: 10px;
+    text-align: center;
+    color: var(--text-color);
+}
 
-    .btn:hover {
-        background-color: var(--accent-color);
-    }
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 15px;
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color var(--transition-speed);
+}
 
-    .btn i {
-        margin-right: 10px;
-        font-size: 1.2em;
-    }
+.btn:hover {
+    background-color: var(--accent-color);
+}
 
-    .file-info {
-        background: var(--glass-bg);
-        /* backdrop-filter: blur(10px); */
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius);
+.btn i {
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+.file-info {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.file-info h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(150px, 1fr));
+    gap: 0px;
+}
+
+.info-item {
+    text-align: center;
+}
+
+.info-item i {
+    font-size: 2em;
+    color: var(--primary-color);
+    margin-bottom: 4px;
+}
+
+.info-item p {
+    margin-bottom: 5px;
+}
+
+.hidden {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .glass-form, .file-info {
         padding: 20px;
-        margin-top: 20px;
     }
+}
 
-    .file-info h2 {
-        color: var(--primary-color);
-        text-align: center;
-        margin-bottom: 15px;
-    }
-
-    .info-grid {
-        display: grid
-        grid-template-columns: repeat(1, minmax(150px, 1fr));
-        gap: 20px;
-    }
-
-    .info-item {
-        text-align: center;
-    }
-
-    .info-item i {
-        font-size: 2em;
-        color: var(--primary-color);
-        margin-bottom: 10px;
-    }
-    .info-item p{
-        margin-bottom: 15px;
-    }
-
-    .hidden {
-        display: none;
-    }
-
-    @media (max-width: 768px) {
-        .glass-form, .file-info {
-            padding: 20px;
-        }
-    }
 </style>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('upload-form');

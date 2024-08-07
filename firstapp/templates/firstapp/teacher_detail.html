@@ -1,15 +1,27 @@
 {% extends "firstapp/base.html" %}
+{% block title %}Teacher Dashboard{% endblock %}
+
+
+
+{% load static %}
+{% block style_block %}
+<link rel="stylesheet" href="{% static 'firstapp/teacher_detail.css' %}">
+{% endblock %}
+
+
 
 {% block body_block %}
-<div class="school-details">
-    <h1>Teacher Details</h1>
-    <div class="school-info">
+
+<div class="content-container">
+    <h1 class="section-title">Teacher Details</h1>
+
+    <div class="teacher-info">
         <h2>{{ teacher.name }}</h2>
     </div>
 
-    <h3>Students</h3>
-    <div class="table-responsive">
-        <table class="bordered-table">
+    <div class="students-container">
+        <h3 class="section-title">Students</h3>
+        <table>
             <thead>
                 <tr>
                     <th>Name</th>
@@ -17,127 +29,62 @@
             </thead>
             <tbody>
                 {% for student in teacher.students.all %}
-                    <tr>
-                        <td><a href="{% url 'firstapp:detail-student' pk=student.id %}" class="tag-button">{{ student.name }}</a></td>
-                    </tr>
+                <tr>
+                    <td>
+                        <div style="display: flex; justify-content: space-between;">
+                            <a href="{% url 'firstapp:detail-student' pk=student.id %}">{{ student.name }}</a>
+                            <a href="{% url 'firstapp:delete-student' pk=student.id %}"><img src="{% static 'firstapp/images/delete.png'%} " width="30px" height="30px" alt="img"></a>
+                        </div>
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <h3>Tests Created</h3>
-    <div class="table-responsive">
-        <table class="bordered-table">
+    <div class="tests-container">
+        <h3 class="section-title">Tests Created</h3>
+        <table>
             <thead>
                 <tr>
                     <th>Test</th>
-                    <th>Test ID</th>
-                    <th>Notes</th>
+                    <th>Start</th>
+                    <th>End</th>
                     <th>Status</th>
+                    <th>Preview</th>
                 </tr>
             </thead>
             <tbody>
                 {% for test in teacher.tests.all %}
-                    <tr>
-                        <td>{{ test.display_name }}</td>
-                        <td><a href="{% url 'firstapp:test_dashboard' pk=test.id %}" class="tag-button">{{ test.id }}</a></td>
-                        <td><a href="{% url 'firstapp:download-file' test.file_path %}" class="tag-button">Download</a></td>
-                        <td><span class="status-btn" id="test-status-{{ test.id }}">Active</span></td>
-                    </tr>
+                <tr>
+                    <td>
+                        <a href="{% url 'firstapp:test_dashboard' pk=test.id %}">{{ test.display_name }}</a>
+                    </td>
+                    <td>
+                        {{test.start_time}}
+                    </td>
+                    <td>
+                        {{test.end_time}}
+                    </td>
+                    <td>
+                        <span id="test-status-{{ test.id }}" class="status-badge status-active">Active</span>
+                    </td>
+                    <td>
+                        <a href="{% url 'firstapp:test_formation' test_id=test.id %}" class="button button-outline button-small">preview</a>
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
     {% if perms.firstapp.add_students %}
-        <div class="action-buttons">
-            <a href="{% url 'firstapp:add-student' %}" class="update-profile-link">Add Student</a>
-            <a href="{% url 'firstapp:upload-file' %}" class="update-profile-link">Upload File</a>
-        </div>
+    <div class="action-buttons">
+        <a href="{% url 'firstapp:add-student' %}" class="button button-primary">Add Student</a>
+        <a href="{% url 'firstapp:upload-file' %}" class="button button-outline">Upload File</a>
+    </div>
     {% endif %}
 </div>
-
-<style>
-    .school-details {
-        background: var(--glass-bg);
-        /* backdrop-filter: blur(10px); */
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius);
-        padding: 30px;
-        margin-top: 20px;
-    }
-
-    .school-info {
-        padding: 20px;
-        margin-bottom: 30px;
-    }
-    .school-info h2{
-        color: var(--primary-color);
-        margin-bottom: 15px;
-    }
-    .tag-button {
-        background-color: var(--secondary-color);
-        color: #fff;
-        padding: 5px 10px;
-        border-radius: var(--radius);
-        text-decoration: none;
-        font-size: 0.9em;
-        transition: background-color var(--transition-speed);
-    }
-
-    .tag-button:hover {
-        background-color: var(--accent-color);
-    }
-
-    .table-responsive {
-        overflow-x: auto;
-    }
-
-    .table-responsive {
-        overflow-x: auto;
-    }
-
-    .bordered-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .bordered-table th,
-    .bordered-table td {
-        border: 1px solid var(--glass-border);
-        padding: 8px;
-    }
-
-    .bordered-table th {
-        background-color: var(--glass-bg);
-    }
-
-    .status-btn {
-        background-color: var(--accent-color);
-        color: #fff;
-        padding: 5px 10px;
-        border-radius: var(--radius);
-        font-size: 0.9em;
-        display: inline-block;
-    }
-
-    .action-buttons {
-        margin-top: 30px;
-        display: flex;
-        gap: 10px;
-    }
-
-    @media (max-width: 768px) {
-        .action-buttons {
-            flex-direction: column;
-        }
-
-        .btn {
-            width: 100%;
-            text-align: center;
-        }
-    }
-</style>
 
 <script>
     function updateTestStatus() {
@@ -153,14 +100,11 @@
                 if (now < startTime) {
                     const timeUntilStart = Math.floor((startTime - now) / 1000);
                     statusElement.textContent = `Starts in ${timeUntilStart}s`;
-                    statusElement.style.backgroundColor = 'var(--accent-color)';
                 } else if (now >= startTime && now < endTime) {
                     const secondsSinceStart = Math.floor((endTime - now) / 1000);
                     statusElement.textContent = `Active ( ends in ${secondsSinceStart}s)`;
-                    statusElement.style.backgroundColor = 'green';
                 } else {
-                    statusElement.textContent = 'Completed';
-                    statusElement.style.backgroundColor = 'gray';
+                    statusElement.textContent = 'completed';
                 }
             })();
         {% endfor %}

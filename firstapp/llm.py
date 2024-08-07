@@ -54,17 +54,16 @@ model2 = genai.GenerativeModel(
 chat = model2.start_chat(enable_automatic_function_calling=True)
 
 
-student_id = 2
-greeting_message = personalized_greeting(student_id)
-def greeting():
+
+# greeting_message = personalized_greeting(student_id)
+def greeting(student_id):
+    greeting_message = personalized_greeting(student_id)
     return greeting_message
 
-flag=True
 
 async def chat_with_me(question):
-    
     user_input = question
-    response = chat.send_message(user_input+f" my student id is {student_id}")
+    response = chat.send_message(user_input)
 
     for part in response.parts:
         if fn := part.function_call:

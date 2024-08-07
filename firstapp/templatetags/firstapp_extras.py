@@ -3,6 +3,7 @@ import datetime
 from django.utils.safestring import mark_safe
 import json
 from firstapp.models import *
+from django.utils import timezone
 register = template.Library()
 
 @register.filter
@@ -45,3 +46,12 @@ def student_test_attempt_status(value,arg):
     if value.name.username in correct_attempt_names:
         return "Accepted"
     return "Late"
+
+
+@register.filter(is_safe=True)
+def compare_timezone(value, arg=None):
+    if arg is None:
+        arg = timezone.now()
+    if value > arg:
+        return 'greater'
+    return 'lesser'

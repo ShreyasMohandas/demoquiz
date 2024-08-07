@@ -37,6 +37,9 @@ class Test(models.Model):
     def __str__(self):
         return self.display_name
     
+    def get_absolute_url(self):
+        return reverse('firstapp:test_formation', kwargs={'test_id': self.pk})
+    
 
 class TestAttempt(models.Model):
     student=models.ForeignKey(Students,related_name='test_history',on_delete=models.CASCADE)

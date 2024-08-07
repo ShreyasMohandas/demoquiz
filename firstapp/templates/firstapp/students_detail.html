@@ -2,165 +2,112 @@
 {% load firstapp_extras %}
 {% block title %}Student Details{% endblock %}
 
+
+
+{% load static %}
+{% block style_block %}
+<link rel="stylesheet" href="{% static 'firstapp/student_detail.css' %}">
+{% endblock %}
+
+
+
 {% block body_block %}
-<div class="student-details">
-    <h1>Student Details</h1>
-    <div class="info-card">
+
+<div class="content-container">
+    <h1 class="section-title">Student Details</h1>
+
+    <div class="student-info">
         <h2>{{ students.name.first_name }} {{ students.name.last_name }}</h2>
         <p><strong>Username:</strong> {{ students.name.username }}</p>
         <p><strong>About:</strong> {{ students.description }}</p>
     </div>
-    
 
-    <h2>Tests</h2>
-    <div class="table-responsive">
-        <table class="bordered-table" >
+    <div class="tests-container">
+        <h2 class="section-title">Tests</h2>
+        <table>
             <thead>
                 <tr>
                     <th>Test Name</th>
                     <th>Status</th>
-                    <th>Notes</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for test in students.teacher.tests.all %}
-                    <tr>
-                        <td>{{ test.display_name }}</td>
+                <tr>
+                    <td>{{ test.display_name }}</td>
+                    <td>
                         {% if test.id in attempted_tests %}
-                            <td><a href="{% url 'firstapp:preview-test' id=test.id  stud_id=students.id %}" class="tag-button">Preview</a></td>
-                            <td><a href="{% url 'firstapp:download-file' test.file_path %}" class="tag-button">Download</a></td>
+                            {% if students|student_test_attempt_status:test == 'Accepted' %}
+                                <span class="status-badge status-active">Attempted</span>
+                            {% else %}
+                                <span class="status-badge status-inactive">Not Taken</span>
+                            {% endif %}
+                        {% else %}
+                            {%if  test.end_time|compare_timezone|compareTwo:'greater' %}
+                                <span id="test-status-{{ test.id }}" class="status-badge status-active">Active</span>
+                            {%else%}
+                                <span class="status-badge status-inactive">Not Taken</span>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if test.id in attempted_tests %}
+                            <a href="{% url 'firstapp:preview-test' id=test.id  stud_id=students.id %}" class="button button-outline button-small">View</a>
+                            <a href="{% url 'firstapp:download-file' test.file_path %}" class="button button-outline button-small">Download</a>
                         {% else %}
                             {% if perms.firstapp.change_students %}
-                                <td><a href="{% url 'firstapp:attend-test' test_id=test.id %}" class="tag-button">Take Test</a></td>
-                            {% else %}
-                                <td><span class="status-btn">Not Taken</span></td>
+                                {%if  test.start_time|compare_timezone|compareTwo:'lesser' %}
+                                    <a href="{% url 'firstapp:attend-test' test_id=test.id %}" class="button button-primary button-small">Take Test</a>
+                                {%else%}
+                                    <span class="button button-primary button-small" style="background-color: grey;">Take Test</span>
+                                {% endif %}
+                            {%else%}
+                                    <span class="button button-primary button-small" style="background-color: grey;">Take Test</span>
                             {% endif %}
-                            <td>-</td>
                         {% endif %}
-                    </tr>
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-    
+
     {% if perms.firstapp.change_students %}
-        <div class="action-buttons">
-            <a href="{% url 'firstapp:update-student' pk=students.pk %}" class="update-profile-link">Update Profile</a>
-        </div>
+    <div class="action-buttons" style="display: flex;justify-content: space-between;">
+        <a href="{% url 'firstapp:update-student' pk=students.pk %}" class="button button-primary">Update Profile</a>
+        <a href="{% url 'firstapp:react-chatbot' %}" class="button button-outline">Chat</a>
+    </div>
     {% endif %}
 </div>
 
-<style>
-    .student-details {
-        background: var(--glass-bg);
-        /* backdrop-filter: blur(10px); */
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius);
-        padding: 30px;
-        margin-top: 20px;
+
+<script>
+    function updateTestStatus() {
+        const now = new Date();
+        
+        {% for test in students.teacher.tests.all %}
+            (function() {
+                const testId = {{ test.id }};
+                const startTime = new Date("{{ test.start_time|date:'c' }}");
+                const endTime = new Date("{{ test.end_time|date:'c' }}");
+                const statusElement = document.getElementById(`test-status-${testId}`);
+                
+                if (now < startTime) {
+                    const timeUntilStart = Math.floor((startTime - now) / 1000);
+                    statusElement.textContent = `Starts in ${timeUntilStart}s`;
+                } else if (now >= startTime && now < endTime) {
+                    const secondsSinceStart = Math.floor((endTime - now) / 1000);
+                    statusElement.textContent = `Active ( ends in ${secondsSinceStart}s)`;
+                } else {
+                    statusElement.textContent = 'completed';
+                }
+            })();
+        {% endfor %}
     }
 
-    .info-card {
-        background: var(--card-bg);
-        border-radius: var(--radius);
-        padding: 20px;
-        margin-bottom: 30px;
-    }
-
-    .info-card h2 {
-        color: var(--primary-color);
-        margin-bottom: 15px;
-    }
-
-    .info-card p {
-        margin-bottom: 10px;
-    }
-
-    .weaknesses-section {
-        margin-bottom: 30px;
-    }
-
-    .tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 10px;
-    }
-
-    .tag-button {
-        background-color: var(--secondary-color);
-        color: #fff;
-        padding: 5px 10px;
-        border-radius: var(--radius);
-        text-decoration: none;
-        font-size: 0.9em;
-        transition: background-color var(--transition-speed);
-    }
-
-    .tag-button:hover {
-        background-color: var(--accent-color);
-    }
-
-    .table-responsive {
-        overflow-x: auto;
-    }
-
-    .bordered-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .bordered-table th,
-    .bordered-table td {
-        border: 1px solid var(--glass-border);
-        text-align: center;
-        padding: 8px;
-    }
-
-    .bordered-table th {
-        background-color: var(--glass-bg);
-    }
-
-    .status-btn {
-        background-color: var(--accent-color);
-        color: #fff;
-        padding: 5px 10px;
-        border-radius: var(--radius);
-        font-size: 0.9em;
-    }
-
-    .action-buttons {
-        margin-top: 30px;
-    }
-    .bordered-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .bordered-table th,
-    .bordered-table td {
-        border: 1px solid var(--glass-border);
-        padding: 8px;
-    }
-
-    .bordered-table th {
-        background-color: var(--glass-bg);
-    }
-
-    @media (max-width: 768px) {
-        .student-details {
-            padding: 20px;
-        }
-
-        .tags {
-            flex-direction: column;
-        }
-
-        .tag-button {
-            text-align: center;
-        }
-    }
-</style>
-
+    updateTestStatus();
+    setInterval(updateTestStatus, 1000);
+</script>
 
 {% endblock %}
