@@ -1,9 +1,0 @@
-{% extends 'firstapp/base.html' %}    
-{% block body_block %}
-        <form action="" method="post">
-            {% csrf_token %}
-            <label for="question">Enter Question</label>
-            <input type="text" name="question" id="question">
-            <input type="submit" value="Submit">
-        </form>
-{% endblock %}
