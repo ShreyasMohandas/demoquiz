@@ -46,7 +46,7 @@ model2 = genai.GenerativeModel(
         "- 'get_upcoming_tests(student_id)': to fetch the upcoming tests for the student.\n"
         "- 'personalized_greeting(student_id)': to generate a personalized greeting for the student, informing them of upcoming tests and offering assistance.\n"
         " -'get_student_answer_details': to Fetch the test submission details of students which is in form of a list of dictionary data. each elelement of list includes details of each question such as question, options, correct_answer, difficulty, solution, tags,total marks of question, and answer_given.\n"
-    
+        "- 'make_personalized_quiz(student_id, topic_name)': to create a personalized quiz for the student based on a specific topic. If the topic is not found in the student's weaknesses, it suggests uploading a file instead.\n"
         "REMEMBER THAT YOU ARE CHATTING WITH THE STUDENT"
     ),
 )
@@ -72,8 +72,6 @@ async def chat_with_me(question):
 
             if function_name == "get_student_tests":
                 result = await get_student_tests(args["student_id"])
-            elif function_name == "personalized_greeting":
-                result = await personalized_greeting(args["student_id"])
             elif function_name == "get_student_test_attempts":
                 result = await get_student_test_attempts(args["student_id"])
             elif function_name == "get_student_answer_details":
@@ -84,6 +82,8 @@ async def chat_with_me(question):
                 result = await get_student_name(args["student_id"])
             elif function_name == "get_student_details":
                 result = await get_student_details(args["student_id"])
+            elif function_name == "make_personalized_quiz":
+                result = await make_personalized_quiz(args["student_id"],args["topic_name"])
             else:
                 result = {"error": f"Unknown function: {function_name}"}
 

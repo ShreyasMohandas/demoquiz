@@ -87,22 +87,22 @@
         const now = new Date();
         
         {% for test in students.teacher.tests.all %}
-            (function() {
-                const testId = {{ test.id }};
-                const startTime = new Date("{{ test.start_time|date:'c' }}");
-                const endTime = new Date("{{ test.end_time|date:'c' }}");
-                const statusElement = document.getElementById(`test-status-${testId}`);
-                
-                if (now < startTime) {
-                    const timeUntilStart = Math.floor((startTime - now) / 1000);
-                    statusElement.textContent = `Starts in ${timeUntilStart}s`;
-                } else if (now >= startTime && now < endTime) {
-                    const secondsSinceStart = Math.floor((endTime - now) / 1000);
-                    statusElement.textContent = `Active ( ends in ${secondsSinceStart}s)`;
-                } else {
-                    statusElement.textContent = 'completed';
-                }
-            })();
+            {% if test.id not in attempted_tests %}
+                (function() {
+                    const testId = {{ test.id }};
+                    const startTime = new Date("{{ test.start_time|date:'c' }}");
+                    const endTime = new Date("{{ test.end_time|date:'c' }}");
+                    const statusElement = document.getElementById(`test-status-${testId}`);
+                    if (now < startTime) {
+                        const timeUntilStart = Math.floor((startTime - now) / 1000);
+                        statusElement.textContent = `Starts in ${timeUntilStart}s`;
+                    } else if (now >= startTime && now < endTime) {
+                        const secondsSinceStart = Math.floor((endTime - now) / 1000);
+                        statusElement.textContent = `Active ( ends in ${secondsSinceStart}s)`;
+                    }
+
+                })();
+            {%endif%}
         {% endfor %}
     }
 

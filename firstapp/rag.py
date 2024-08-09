@@ -204,3 +204,14 @@ def calculate_total_marks(data):
     for question in data["questions"]:
         total_marks += int(question["marks"])
     return total_marks
+
+def count_result_status(data):
+    result=[0,0,0]
+    for question in data["questions"]:
+        if question["answer_given"]=='correct':
+            result[0]+=1
+        elif question["answer_given"]=='incorrect':
+            result[1]+=1
+        elif question["answer_given"]=='unattempted':
+            result[2]+=1
+    return result

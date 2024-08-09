@@ -26,7 +26,7 @@
             {%endfor%}
             <div class="solution">Solution - {{ question.solution }}</div>
             <div class="marks marks-positive">Marks Assigned - {{question.marks}}</div>
-                    <h3>Area of improvements - click for improvement test</h3>
+                    <h3>Question Tags</h3>
                     <div class="action-buttons">
                         {% for tag in question.tags %}
                             <a href="#" class="button button-outline">{{ tag }}</a>

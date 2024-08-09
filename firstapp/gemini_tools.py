@@ -1,6 +1,8 @@
 import os
 import sys
 import django
+from django.conf import settings
+from datetime import timedelta,timezone
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'modelrev2.settings')
 django.setup()
@@ -32,11 +34,27 @@ def get_student_test_attempts(student_id: int):
             'test': attempt.test.display_name,
             'obtained marks': attempt.test_marks,
             'total marks  of test':attempt.test.test_total_marks,
+            'start time':(attempt.attempt_start+timedelta(hours=5,minutes=30)).strftime('%d-%m-%Y %H:%M'),
+            'submitted time':(attempt.attempt_end+timedelta(hours=5,minutes=30)).strftime('%d-%m-%Y %H:%M'),
             'topics to focus':[topic.topic for topic in Topics.objects.filter(test=attempt.test,student=student)]
         } for attempt in tests]
     except ObjectDoesNotExist:
         return {"error": "Student not found"}
     
+@sync_to_async
+def make_personalized_quiz(student_id: int,topic_name:str):
+    try:
+        student = Students.objects.get(pk=student_id)
+        topic_list={i.topic:i.id for i in Topics.objects.filter(student=student)}
+
+        if topic_list.get(topic_name)==None:
+            return "No weakness found on topic given. Upload file instead"
+        else:
+            return settings.BASE_URL +reverse('firstapp:improvement-test',kwargs={'topic_id':topic_list[topic_name]})
+    except:
+        return {"error": "Student not found"}
+        
+
 @sync_to_async
 def get_student_answer_details(student_id: int):
     try:
@@ -74,7 +92,7 @@ def get_student_details(student_id: int):
             "name": student.name.username,
             "teacher": student.teacher.name.username,
             "description": student.description,
-            "added_date": student.added_at.isoformat()
+            "added_date": (student.added_at + timedelta(hours=5,minutes=30)).strftime('%d-%m-%Y %H:%M')
         }
     except ObjectDoesNotExist:
         return {"error": "Student not found"}
@@ -101,7 +119,7 @@ def personalized_greeting(student_id: int):
         if upcoming_tests:
             test_info = "You have the following upcoming test(s):\n"
             for test in upcoming_tests:
-                test_info += f"- {test['test name']} on {test['scheduled time'].strftime('%Y-%m-%d %H:%M')}\n"
+                test_info += f"- {test['test name']} on {(test['scheduled time']+timedelta(hours=5,minutes=30)).strftime('%d-%m-%Y %H:%M')}\n"
         else:
             test_info = "You have no upcoming tests scheduled."
 
@@ -124,6 +142,16 @@ tools = [
             type=Type.OBJECT,
             properties={"student_id": Schema(type=Type.NUMBER)},
             required=["student_id"]
+        )
+    ),
+    FunctionDeclaration(
+        name="make_personalized_quiz",
+        description="Create a personalized quiz for a student based on a specific topic. If the topic is not found in the student's weaknesses topics, it suggests uploading a file.",
+        parameters=Schema(
+            type=Type.OBJECT,
+            properties={"student_id":Schema(type=Type.NUMBER),
+                        "topic_name":Schema(type=Type.STRING)},
+            required=["student_id","topic_name"]
         )
     ),
     FunctionDeclaration(

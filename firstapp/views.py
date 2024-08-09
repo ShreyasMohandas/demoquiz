@@ -158,6 +158,8 @@ class updateTest(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
         form_data = form.save(commit=False)
         questions = form_data.test_data.get('questions')
+        data=form_data.test_total_marks
+        print(data)
         for i in range(len(questions)):
             questions[i][f'question'] = form.cleaned_data.get(f'question_{i}')
             questions[i]['correct_answer'] = form.cleaned_data.get(f'correct_answer_{i}')
@@ -170,7 +172,8 @@ class updateTest(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
                 questions[i][f'difficulty']='Hard'
             for j in range(len(questions[i]['options'])):
                 questions[i]['options'][j]=form.cleaned_data.get(f'option_{i}_{j}')
-        print(form_data)
+        form_data.test_total_marks=rag.calculate_total_marks({'questions':questions})
+        print(form_data.test_total_marks)
         form.save()
             
         return super().form_valid(form)
@@ -223,7 +226,8 @@ def attend_quiz(request,test_id):
             test=test,
             attempt_start=timezone.now()
         )
-        return render(request,"firstapp/quiz.html",context=test.test_data)
+        
+        return render(request,"firstapp/quiz.html",context={'test':test,'test_mode':'one'})
     elif request.method == 'POST':
         submitted_data=request.POST
         test=Test.objects.get(id=test_id)
@@ -263,6 +267,8 @@ def attend_quiz(request,test_id):
         test_attempt.test_marks=obtained_marks
         test_attempt.save()
 
+        result_status=rag.count_result_status(question_list)
+
         return render(
             request,'firstapp/result_page.html',
                     {
@@ -270,7 +276,10 @@ def attend_quiz(request,test_id):
                         'total_marks': test_marks,
                         'questions':question_list['questions'],
                         'preview':None,
-                        'student_pk':student.name.pk
+                        'student_pk':student.name.pk,
+                        'correct_count':result_status[0],
+                        'incorrect_count':result_status[1],
+                        'unattempted_count':result_status[2]
                     }
             )
     
@@ -280,7 +289,9 @@ def preview_test(request,id,stud_id):
     test_master=Test.objects.get(id=id)
     test=TestAttempt.objects.get(student_id=student.id,test_id=id)
     topic_tags=Topics.objects.filter(test=test_master,student=student)
-    print(test.Submitted_data)
+    
+    result_status=rag.count_result_status({'questions':test.Submitted_data})
+
     return render(
         request,
         'firstapp/result_page.html',
@@ -293,7 +304,10 @@ def preview_test(request,id,stud_id):
             'start_time':test.attempt_start,
             'end_time':test.attempt_end,
             'test_mode':'one',
-            'tags':topic_tags
+            'tags':topic_tags,
+            'correct_count':result_status[0],
+            'incorrect_count':result_status[1],
+            'unattempted_count':result_status[2]
         }
     )
 
@@ -313,7 +327,11 @@ def rectification_quiz(request,topic_id):
         rag.start_embedding('modelrev2/media/documents/'+test.file_path)
         question_list=rag.generate_quiz("generate 15 questions with 7 questions easy, 5 questions medium and 3 questions hard level on "+topic.topic+" to master this topic")
         request.session['gen_ques']=question_list
-        return render(request,"firstapp/quiz.html",context=question_list)
+        test={
+            'test_data':question_list,
+            'test_mode':'two'
+        }
+        return render(request,"firstapp/quiz.html",context={'test':test})
     elif request.method == 'POST':
         submitted_data=request.POST
         question_list=request.session.get('gen_ques')
@@ -329,7 +347,8 @@ def rectification_quiz(request,topic_id):
             else:
                 question_list['questions'][i-1].update({'answer_given':'unattempted'})
         test_marks=rag.calculate_total_marks(question_list)
-        print(obtained_marks,test_marks)
+        result_status=rag.count_result_status(question_list)
+
         if obtained_marks/test_marks>0.8:
             Topics.objects.filter(id=topic_id).delete()
         return render(
@@ -340,7 +359,10 @@ def rectification_quiz(request,topic_id):
                         'questions':question_list['questions'],
                         'preview':None,
                         'student_pk':student.name.pk,
-                        'test_mode':'two'
+                        'test_mode':'two',
+                        'correct_count':result_status[0],
+                        'incorrect_count':result_status[1],
+                        'unattempted_count':result_status[2]
                     }
             )
 
@@ -367,3 +389,5 @@ def react_chatbot(request):
     }
     return render(request,'firstapp/chatbot.html',context=context)
 
+def base_url(request):
+    return request.build_absolute_uri()

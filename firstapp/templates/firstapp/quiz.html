@@ -1,8 +1,10 @@
 {% extends "firstapp/base.html" %}
 
 {% load static %}
+{% load firstapp_extras %}
 {% block style_block %}
 <link rel="stylesheet" href="{% static 'firstapp/quiz.css' %}">
+<link rel="stylesheet" href="{% static 'firstapp/student_detail.css' %}">
 {% endblock %}
 
 {% block body_block %}
@@ -12,26 +14,27 @@
             <h2>Questions</h2>
         </div>
         <ul class="question-nav">
-            {% for question in questions %}
+            {% for question in test.test_data.questions %}
             <li>
-                <button type="button" class="nav-button" data-question-id="question-{{ question.id }}">
+                <button type="button" class="nav-button button-outline button-small" data-question-id="question-{{ question.id }}">
                     {{ question.id }}
                 </button>
             </li>
             {% endfor %}
         </ul>
-        <button type="button" class="main-menu-button">Main Menu</button>
     </div>
 
     <div class="main-content">
         <div class="header">
             <h1 class="quiz-title">Quiz</h1>
-            <div class="timer" id="timer">15:00</div>
+            {%if test_mode|compareTwo:'one'%}
+            <div class="timer" id="timer">00:00</div>
+            {%endif%}
         </div>
 
         <form method="post">
             {% csrf_token %}
-            {% for question in questions %}
+            {% for question in test.test_data.questions %}
             <div id="question-{{ question.id }}" class="question-container">
                 <div class="question-header">
                     <span class="question-label">Question {{ question.id }}</span>
@@ -101,8 +104,16 @@
         showQuestion(currentQuestionIndex);
 
         // Timer
+        {%if test_mode|compareTwo:'one'%}
         const timerElement = document.getElementById('timer');
-        let timeLeft = 15 * 60; // 15 minutes in seconds
+        const now = new Date();
+        const endTime = new Date("{{ test.end_time|date:'c' }}");
+        const startTime = new Date("{{ test.start_time|date:'c' }}");
+        let timeLeft = Math.floor((endTime - now) / 1000)
+        if (timeLeft<0)
+        {
+            timeLeft = Math.floor(Math.abs(endTime-startTime)/1000)
+        }
 
         function updateTimer() {
             const minutes = Math.floor(timeLeft / 60);
@@ -114,8 +125,8 @@
                 document.querySelector('form').submit();
             }
         }
-
         setInterval(updateTimer, 1000);
+        {%endif%}
     });
 </script>
 {% endblock %}

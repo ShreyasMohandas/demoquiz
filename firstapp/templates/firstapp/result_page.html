@@ -4,6 +4,7 @@
 
 {% load static %}
 {% block style_block %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 <link rel="stylesheet" href="{% static 'firstapp/result_page.css' %}">
 {% endblock %}
 
@@ -27,6 +28,9 @@
         {%endif%}
         <div class="progress-bar">
             <div class="progress-bar-fill" ></div>
+        </div>
+        <div style="display: flex;justify-content: center;">
+            <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
         </div>
     </div>
 
@@ -72,6 +76,31 @@
 </div>
 
 <script>
+    var xValues = ["Correct", "Incorrect", "Unattempted"];
+var yValues = [{{correct_count}},{{incorrect_count}},{{unattempted_count}}];
+var barColors = [
+  "#28a745",
+  "#d73a49",
+  "#0366d6",
+];
+
+new Chart("myChart", {
+  type: "doughnut",
+  data: {
+    labels: xValues,
+    datasets: [{
+      backgroundColor: barColors,
+      data: yValues
+    }]
+  },
+  options: {
+    title: {
+      display: true,
+      text: "questions"
+    }
+  }
+});
+
     document.addEventListener('DOMContentLoaded', function() {
     const progressBarFill = document.querySelector('.progress-bar-fill');
     const scorePercentage = {{marks_obtained}}/{{total_marks}}*100;
