@@ -6,12 +6,13 @@
 {% block style_block %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 <link rel="stylesheet" href="{% static 'firstapp/result_page.css' %}">
+<link rel="stylesheet" href="{% static 'firstapp/student_detail.css' %}">
 {% endblock %}
 
 
 
 {% block body_block %}
-
+<div class="content-container">
 <div class="container result-container">
     <div class="confetti"></div>
     {% if test_mode|compareTwo:'one' %}
@@ -74,7 +75,7 @@
     </div>
     {% endif %}
 </div>
-
+</div>
 <script>
     var xValues = ["Correct", "Incorrect", "Unattempted"];
 var yValues = [{{correct_count}},{{incorrect_count}},{{unattempted_count}}];

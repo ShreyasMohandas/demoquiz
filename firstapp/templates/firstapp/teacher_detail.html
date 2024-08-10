@@ -15,8 +15,19 @@
 <div class="content-container">
     <h1 class="section-title">Teacher Details</h1>
 
-    <div class="teacher-info">
-        <h2>{{ teacher.name }}</h2>
+    <div class="student-info" style="display: flex;justify-content: space-between;">
+        <span>
+            <h2>{{ teacher.name.first_name }} {{ teacher.name.last_name }}</h2>
+            <p><strong>Username:</strong> {{ teacher.name.username }}</p>
+            <p><strong>About:</strong> {{ teacher.description }}</p>
+        </span>
+        <span class="profile-pic-container">
+            {% if teacher.display_profile %}
+                <div class="profile-pic" style="background-image: url('{{ teacher.display_profile.url }}')"></div>
+            {% else %}
+                <p>no image</p>
+            {% endif %}
+        </span>
     </div>
 
     <div class="students-container">

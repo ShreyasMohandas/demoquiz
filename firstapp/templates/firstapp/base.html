@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{%load firstapp_extras%}
 {% load static %}
 <html lang="en">
   <head>
@@ -16,6 +17,9 @@
 
     <link rel="stylesheet" href="{%static 'firstapp/base.css' %}">
     {% block style_block %}{% endblock %}
+    <style>body{
+      background-color: rgba(214, 47, 51, 1);
+    }</style>
   </head>
   <body>
     <nav class="navbar">
@@ -26,7 +30,11 @@
           <li><a href="/">Home</a></li>
           {% if user.is_authenticated %}
           <li><a href="{% url 'firstapp:logout' %}">Logout</a></li>
+          {% if perms.firstapp.add_students %}
+          <li><a href="{% url 'firstapp:update-teacher' pk=user.id|get_teacher_id %}"><img src="{% static 'firstapp/images/cogwheel.png'%} " width="30px" height="30px" alt="img"></a></li>
           {%endif%}
+          {%endif%}
+
         </ul>
       </div>
     </nav>

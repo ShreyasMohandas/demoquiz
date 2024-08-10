@@ -109,17 +109,25 @@ class studentdetail(LoginRequiredMixin,DetailView):
 class studentUpdate(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
     permission_required='firstapp.change_students'
     model=Students
-    fields={'description'}
+    fields=['description','display_profile']
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        form.instance.name=self.request.user
+        return super().form_valid(form)
+    
+class TeacherUpdate(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
+    permission_required='firstapp.add_students'
+    model=Teacher
+    success_url=reverse_lazy('firstapp:home')
+    fields=['description','display_profile']
     def form_valid(self, form: BaseModelForm) -> HttpResponse:
         form.instance.name=self.request.user
         return super().form_valid(form)
 
-
 def handle_uploaded_file(f):
-    with open('modelrev2/media/documents/'+f.name, 'wb+') as destination:   
+    with open(f'{settings.MEDIA_ROOT}/documents/'+f.name, 'wb+') as destination:   
         for chunk in f.chunks(): 
             destination.write(chunk)  
-    rag.start_embedding('modelrev2/media/documents/'+f.name)
+    rag.start_embedding(f'{settings.MEDIA_ROOT}/documents/'+f.name)
     return f.name
 
 
@@ -313,7 +321,7 @@ def preview_test(request,id,stud_id):
 
 
 def download_file(request,file_path):
-    file_abs_path = 'modelrev2/media/documents/'+file_path
+    file_abs_path = f'{settings.MEDIA_ROOT}/documents/'+file_path
     file= FileResponse(open(file_abs_path,'rb'))
     file['Content-Disposition'] = f'attachment; filename="{file_path}"'
     return file
@@ -324,7 +332,7 @@ def rectification_quiz(request,topic_id):
     if request.method=='GET':
         topic=Topics.objects.get(id=topic_id,student_id=student.id)
         test=Test.objects.get(id=topic.test_id)
-        rag.start_embedding('modelrev2/media/documents/'+test.file_path)
+        rag.start_embedding(f'{settings.MEDIA_ROOT}/documents/'+test.file_path)
         question_list=rag.generate_quiz("generate 15 questions with 7 questions easy, 5 questions medium and 3 questions hard level on "+topic.topic+" to master this topic")
         request.session['gen_ques']=question_list
         test={
@@ -388,6 +396,3 @@ def react_chatbot(request):
         'student_name':student.name
     }
     return render(request,'firstapp/chatbot.html',context=context)
-
-def base_url(request):
-    return request.build_absolute_uri()

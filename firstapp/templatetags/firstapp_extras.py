@@ -55,3 +55,9 @@ def compare_timezone(value, arg=None):
     if value > arg:
         return 'greater'
     return 'lesser'
+
+@register.filter(is_safe=True)
+def get_teacher_id(value, arg=None):
+    if arg is None:
+        user=User.objects.get(pk=value)
+        return Teacher.objects.get(name = user).id

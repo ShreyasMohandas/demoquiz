@@ -16,10 +16,19 @@
 <div class="content-container">
     <h1 class="section-title">Student Details</h1>
 
-    <div class="student-info">
-        <h2>{{ students.name.first_name }} {{ students.name.last_name }}</h2>
-        <p><strong>Username:</strong> {{ students.name.username }}</p>
-        <p><strong>About:</strong> {{ students.description }}</p>
+    <div class="student-info" style="display: flex;justify-content: space-between;">
+        <span>
+            <h2>{{ students.name.first_name }} {{ students.name.last_name }}</h2>
+            <p><strong>Username:</strong> {{ students.name.username }}</p>
+            <p><strong>About:</strong> {{ students.description }}</p>
+        </span>
+        <span class="profile-pic-container">
+            {% if students.display_profile %}
+                <div class="profile-pic" style="background-image: url('{{ students.display_profile.url }}')"></div>
+            {% else %}
+                <p>no image</p>
+            {% endif %}
+        </span>
     </div>
 
     <div class="tests-container">

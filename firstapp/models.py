@@ -4,6 +4,8 @@ from django.urls import reverse
 
 class Teacher(models.Model):
     name = models.OneToOneField(User, on_delete=models.CASCADE, limit_choices_to={'groups__name': 'Teacher'})
+    description = models.TextField(blank=True)
+    display_profile = models.ImageField(upload_to='profile_pics',blank=True)
 
     def get_absolute_url(self):
         return reverse('firstapp:teacher_detail', kwargs={'pk': self.name.pk})
@@ -15,6 +17,7 @@ class Students(models.Model):
     name = models.OneToOneField(User, on_delete=models.CASCADE, limit_choices_to={'groups__name': 'Students'})
     teacher = models.ForeignKey(Teacher, related_name='students',on_delete=models.CASCADE)
     description = models.TextField(blank=True)
+    display_profile = models.ImageField(upload_to='profile_pics',blank=True)
     added_at= models.DateTimeField(auto_now_add=True)
 
 
