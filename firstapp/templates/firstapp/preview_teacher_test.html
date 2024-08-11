@@ -37,7 +37,11 @@
     {% endfor %}
     <div class="action-buttons" style="display: flex;justify-content: space-between;">
         <a href="{% url 'firstapp:home' %}" class="button button-outline">Back to Tests</a>
-        <a href="{% url 'firstapp:update-test' pk=test.id %}" class="button button-primary">Update Test</a>
+        {% if test.end_time|compare_timezone == 'greater' %}
+            <a href="{% url 'firstapp:update-test' pk=test.id %}" class="button button-primary">Update Test</a>
+        {%else%}
+            <span class="button button-primary" style="background-color: rgba(240, 240, 240, 0.904);color: rgb(77, 77, 77);">Cannot Update</span>
+        {%endif%}
     </div>
 </div>
 
