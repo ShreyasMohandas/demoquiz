@@ -10,8 +10,8 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'modelrev2.settings')
 django.setup()
 from gemini_tools import *
 
-genai.configure(api_key="AIzaSyDM0bMWBOV-mmmG0lgdgiq022YFQa9CtbI")
-os.environ["GOOGLE_API_KEY"] = "AIzaSyDM0bMWBOV-mmmG0lgdgiq022YFQa9CtbI"
+genai.configure(api_key="ADD_API_KEY_HERE")
+os.environ["GOOGLE_API_KEY"] = "ADD_API_KEY_HERE"
 
 
 

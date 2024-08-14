@@ -51,6 +51,24 @@
           </td>
         </tr>
         {% endfor %}
+        {% for student in allStudents %}
+        {%if student not in students%}
+        <tr>
+          <td>{{ student.name.username }}</td>
+          <td>
+            <span class="status-badge {% if student|student_test_attempt_status:test == 'Accepted' %}status-active{% else %}status-inactive{% endif %}">
+              Not Taken
+            </span>
+          </td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>
+            <span class="button button-outline button-small" style="background-color: rgba(240, 240, 240, 0.904);color: rgb(77, 77, 77); border: black;">Preview</span>
+          </td>
+        </tr>
+        {%endif%}
+        {%endfor%}
       </tbody>
     </table>
   </div>

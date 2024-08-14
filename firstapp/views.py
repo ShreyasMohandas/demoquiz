@@ -384,6 +384,9 @@ class Test_View(LoginRequiredMixin,PermissionRequiredMixin,DetailView):
         context= super().get_context_data(**kwargs)
         context["students"]=Students.objects.filter(
             test_history__test=self.object,
+        ).order_by("-test_history__test_marks")
+        context["allStudents"]=Students.objects.filter(
+            teacher=self.object.teacher,
         )
         context["test"]=self.object
         context["average"]=TestAttempt.objects.filter(test=self.object).aggregate(Avg('test_marks'))['test_marks__avg']

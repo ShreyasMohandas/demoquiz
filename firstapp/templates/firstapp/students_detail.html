@@ -37,7 +37,9 @@
             <thead>
                 <tr>
                     <th>Test Name</th>
+                    <th>Resource</th>
                     <th>Status</th>
+                    <th>Marks</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -45,6 +47,9 @@
                 {% for test in students.teacher.tests.all %}
                 <tr>
                     <td>{{ test.display_name }}</td>
+                    <td>
+                        <a href="{% url 'firstapp:download-file' test.file_path %}" class="button button-outline button-small">Download</a>
+                    </td>
                     <td>
                         {% if test.id in attempted_tests %}
                             {% if students|student_test_attempt_status:test == 'Accepted' %}
@@ -62,8 +67,14 @@
                     </td>
                     <td>
                         {% if test.id in attempted_tests %}
+                        {{students|student_test_attempt_marks:test}} of {{test.test_total_marks}}
+                        {%else%}
+                        -
+                        {%endif%}
+                    </td>
+                    <td>
+                        {% if test.id in attempted_tests %}
                             <a href="{% url 'firstapp:preview-test' id=test.id  stud_id=students.id %}" class="button button-outline button-small">View</a>
-                            <a href="{% url 'firstapp:download-file' test.file_path %}" class="button button-outline button-small">Download</a>
                         {% else %}
                             {% if perms.firstapp.change_students %}
                                 {%if  test.start_time|compare_timezone|compareTwo:'lesser' %}
