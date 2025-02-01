@@ -16,8 +16,8 @@ import re
 
 
 
-genai.configure(api_key="AIzaSyDM0bMWBOV-mmmG0lgdgiq022YFQa9CtbI")
-os.environ["GOOGLE_API_KEY"]="AIzaSyDM0bMWBOV-mmmG0lgdgiq022YFQa9CtbI"
+genai.configure(api_key="API-KEY")
+os.environ["GOOGLE_API_KEY"]="API-KEY"
 
 
 # def load_documents():
